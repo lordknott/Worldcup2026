@@ -192,9 +192,43 @@ const FIXTURES = [
   {id:72,date:"Sun 28 Jun",dateOrder:17,time:"12:00 PM",teamA:"Jordan",teamB:"Argentina",group:"J",env:"❄ A/C",prediction:"0-4",ou:"⬆ OVER 3.5",conf:"HIGH",result:null}
 ];
 
-let fixtures = FIXTURES.map(f => Object.assign({}, f));
+// Load saved data from localStorage
+function loadSaved() {
+  try {
+    var saved = localStorage.getItem('wc2026_results');
+    var savedAI = localStorage.getItem('wc2026_ai');
+    if (saved) {
+      var results = JSON.parse(saved);
+      return FIXTURES.map(function(f) {
+        return Object.assign({}, f, {result: results[f.id] || null});
+      });
+    }
+  } catch(e) {}
+  return FIXTURES.map(function(f){ return Object.assign({}, f); });
+}
+
+function saveResults() {
+  try {
+    var results = {};
+    fixtures.forEach(function(f){ if (f.result) results[f.id] = f.result; });
+    localStorage.setItem('wc2026_results', JSON.stringify(results));
+    var aiData = {};
+    Object.keys(aiUpdated).forEach(function(k){ aiData[k] = aiUpdated[k]; });
+    localStorage.setItem('wc2026_ai', JSON.stringify(aiData));
+  } catch(e) {}
+}
+
+function loadAIUpdates() {
+  try {
+    var saved = localStorage.getItem('wc2026_ai');
+    if (saved) return JSON.parse(saved);
+  } catch(e) {}
+  return {};
+}
+
+let fixtures = loadSaved();
 let editingId = null;
-let aiUpdated = {};
+let aiUpdated = loadAIUpdates();
 
 function getAccuracy(pred, result) {
   if (!pred || !result || !pred.includes('-') || !result.includes('-')) return null;
@@ -298,6 +332,7 @@ function confirmResult(id) {
   if (!val.match(/^\d+-\d+$/)) return;
   fixtures = fixtures.map(function(f){ return f.id===id ? Object.assign({},f,{result:val}) : f; });
   editingId = null;
+  saveResults();
   renderFixtures();
   updatePredictions(id, val);
 }
@@ -324,6 +359,7 @@ async function updatePredictions(id, val) {
           return f;
         });
       });
+      saveResults();
       renderFixtures();
     }
   } catch(e) { console.log('AI update failed',e); }
