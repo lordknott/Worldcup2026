@@ -50,6 +50,7 @@
     .result-input-wrap { display: flex; gap: 4px; }
     .result-input { width: 50px; background: rgba(255,255,255,0.1); border: 1px solid #d4af37; border-radius: 6px; color: white; padding: 4px 6px; font-size: 13px; font-weight: 700; text-align: center; outline: none; }
     .result-confirm { background: #d4af37; color: #0a0e1a; border: none; border-radius: 6px; padding: 4px 8px; font-weight: 700; cursor: pointer; font-size: 12px; }
+    .result-clear { background: rgba(239,68,68,0.3); color: #f87171; border: 1px solid rgba(239,68,68,0.4); border-radius: 6px; padding: 4px 8px; font-weight: 700; cursor: pointer; font-size: 12px; }
     .add-result-btn { background: rgba(212,175,55,0.15); border: 1px dashed rgba(212,175,55,0.4); color: #d4af37; border-radius: 6px; padding: 5px 10px; font-size: 11px; cursor: pointer; font-weight: 600; }
     .ou-badge { border-radius: 6px; padding: 3px 8px; font-size: 11px; font-weight: 700; text-align: center; }
     .conf-badge { border-radius: 6px; padding: 3px 7px; font-size: 10px; font-weight: 700; text-align: center; }
@@ -293,7 +294,7 @@ function renderFixtures() {
         var rTxt = acc==='exact'?'✓ EXACT':acc==='direction'?'↗ CORRECT':'✗ WRONG';
         html += '<div class="result-area"><div class="result-box"><div class="result-label">RESULT</div><div class="result-score" style="background:'+rBg+';color:'+rCol+'" onclick="startEdit('+f.id+')">'+f.result+'</div><div class="result-acc" style="color:'+rCol+'">'+rTxt+'</div></div></div>';
       } else if (editingId === f.id) {
-        html += '<div class="result-area"><div class="result-input-wrap"><input class="result-input" id="input-'+f.id+'" value="'+(f.result||'')+'" placeholder="2-1" onkeydown="handleKey(event,'+f.id+')"><button class="result-confirm" onclick="confirmResult('+f.id+')">✓</button></div></div>';
+        html += '<div class="result-area"><div class="result-input-wrap"><input class="result-input" id="input-'+f.id+'" value="'+(f.result||'')+'" placeholder="2-1" onkeydown="handleKey(event,'+f.id+')"><button class="result-confirm" onclick="confirmResult('+f.id+')">✓</button><button class="result-clear" onclick="clearResult('+f.id+')">✕</button></div></div>';
       } else {
         html += '<div class="result-area"><button class="add-result-btn" onclick="startEdit('+f.id+')">+ Result</button></div>';
       }
@@ -323,6 +324,13 @@ function startEdit(id) {
 function handleKey(e, id) {
   if (e.key === 'Enter') confirmResult(id);
   if (e.key === 'Escape') { editingId = null; renderFixtures(); }
+}
+
+function clearResult(id) {
+  fixtures = fixtures.map(function(f){ return f.id===id ? Object.assign({},f,{result:null}) : f; });
+  editingId = null;
+  saveResults();
+  renderFixtures();
 }
 
 function confirmResult(id) {
