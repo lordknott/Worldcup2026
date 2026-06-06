@@ -1,4 +1,5 @@
-import { useState, useCallback } from "react";
+const { useState, useCallback } = React;
+
 
 const INITIAL_FIXTURES = [
   { id:1,  date:"Fri 12 Jun", dateOrder:1,  time:"5:00 AM",  teamA:"Mexico",        teamB:"South Africa",   group:"A", venue:"Estadio Azteca",        env:"🏔 ALT",  prediction:"2-0", ou:"⬇ UNDER 2.5",  conf:"HIGH", result:null },
@@ -270,4 +271,7 @@ export default function App() {
 
       <style>{`@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}} button:hover{opacity:0.85} input:focus{outline:none}`}</style>
     </div>
-    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
