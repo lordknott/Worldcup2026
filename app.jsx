@@ -269,7 +269,7 @@ export default function App() {
         </div>
       </div>
 
-      <style>{`@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}} button:hover{opacity:0.85} input:focus{outline:none}`}</style>
+      <style dangerouslySetInnerHTML={{__html: '@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}} button:hover{opacity:0.85} input:focus{outline:none}'}} />
     </div>
   );
 }
