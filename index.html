@@ -1,391 +1,574 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>World Cup 2026 - William Knott</title>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { background: #0a0e1a; font-family: 'Trebuchet MS', sans-serif; color: #e8eaf0; min-height: 100vh; }
-    .header { background: linear-gradient(135deg, #0d1b2a, #1a2744, #0d1b2a); border-bottom: 2px solid #d4af37; padding: 18px 16px 14px; }
-    .header-inner { max-width: 700px; margin: 0 auto; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 10px; }
-    .title { font-size: 22px; font-weight: 700; color: #d4af37; letter-spacing: 2px; text-transform: uppercase; }
-    .subtitle { font-size: 13px; color: #d4af37; margin-top: 2px; font-weight: 600; letter-spacing: 1px; }
-    .stats { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
-    .stat-box { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 5px 10px; text-align: center; }
-    .stat-val { font-size: 16px; font-weight: 700; }
-    .stat-lbl { font-size: 9px; color: #8899aa; text-transform: uppercase; letter-spacing: 1px; }
-    .built { font-size: 11px; color: #8899aa; letter-spacing: 1px; text-align: right; margin-top: 4px; }
-    .main { max-width: 700px; margin: 0 auto; padding: 12px 12px 4px; }
-    .guide { background: rgba(212,175,55,0.07); border: 1px solid rgba(212,175,55,0.25); border-radius: 10px; padding: 10px 14px; margin-bottom: 10px; cursor: pointer; }
-    .guide-title { font-weight: 700; font-size: 13px; color: #d4af37; display: flex; justify-content: space-between; align-items: center; }
-    .guide-body { margin-top: 12px; display: none; flex-direction: column; gap: 11px; }
-    .guide-body.open { display: flex; }
-    .guide-row { display: flex; align-items: flex-start; gap: 10px; }
-    .guide-row-title { font-size: 12px; font-weight: 700; color: #e8eaf0; margin-bottom: 2px; }
-    .guide-row-desc { font-size: 11px; color: #8899aa; line-height: 1.6; }
-    .disclaimer { padding: 8px 12px; background: rgba(239,68,68,0.08); border-radius: 8px; border: 1px solid rgba(239,68,68,0.2); font-size: 11px; color: #fca5a5; line-height: 1.6; }
-    .date-header { background: linear-gradient(90deg, #d4af37, #b8962e); border-radius: 8px; padding: 7px 14px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
-    .date-label { font-weight: 700; font-size: 14px; color: #0a0e1a; letter-spacing: 1px; }
-    .date-count { font-size: 11px; color: #0a0e1a; opacity: 0.7; }
-    .date-group { margin-bottom: 16px; }
-    .match-card { border-radius: 10px; margin-bottom: 7px; padding: 11px 13px; transition: all 0.3s; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.03); }
-    .match-row1 { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
-    .match-row2 { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; }
-    .group-badge { color: white; border-radius: 4px; padding: 2px 7px; font-size: 11px; font-weight: 700; flex-shrink: 0; }
-    .match-time { color: #8899aa; font-size: 11px; flex-shrink: 0; }
-    .match-teams { display: flex; align-items: center; gap: 6px; flex: 1; flex-wrap: wrap; }
-    .team-name { font-weight: 700; font-size: 14px; }
-    .vs { color: #445; font-size: 12px; }
-    .match-env { font-size: 11px; color: #556; }
-    .pred-box { display: flex; flex-direction: column; align-items: center; min-width: 50px; flex-shrink: 0; }
-    .pred-label { font-size: 9px; color: #667; margin-bottom: 2px; }
-    .pred-score { background: rgba(255,255,255,0.1); border-radius: 6px; padding: 3px 10px; font-weight: 700; font-size: 15px; letter-spacing: 1px; }
-    .updated-label { font-size: 8px; color: #fbbf24; margin-top: 1px; }
-    .result-area { min-width: 76px; flex-shrink: 0; }
-    .result-box { display: flex; flex-direction: column; align-items: center; }
-    .result-label { font-size: 9px; color: #667; margin-bottom: 2px; }
-    .result-score { border-radius: 6px; padding: 3px 10px; font-weight: 700; font-size: 15px; letter-spacing: 1px; cursor: pointer; border-bottom: 1px dashed rgba(255,255,255,0.3); }
-    .result-acc { font-size: 8px; margin-top: 1px; }
-    .result-input-wrap { display: flex; gap: 4px; }
-    .result-input { width: 50px; background: rgba(255,255,255,0.1); border: 1px solid #d4af37; border-radius: 6px; color: white; padding: 4px 6px; font-size: 13px; font-weight: 700; text-align: center; outline: none; }
-    .result-confirm { background: #d4af37; color: #0a0e1a; border: none; border-radius: 6px; padding: 4px 8px; font-weight: 700; cursor: pointer; font-size: 12px; }
-    .result-clear { background: rgba(239,68,68,0.3); color: #f87171; border: 1px solid rgba(239,68,68,0.4); border-radius: 6px; padding: 4px 8px; font-weight: 700; cursor: pointer; font-size: 12px; }
-    .add-result-btn { background: rgba(212,175,55,0.15); border: 1px dashed rgba(212,175,55,0.4); color: #d4af37; border-radius: 6px; padding: 5px 10px; font-size: 11px; cursor: pointer; font-weight: 600; }
-    .ou-badge { border-radius: 6px; padding: 3px 8px; font-size: 11px; font-weight: 700; text-align: center; }
-    .conf-badge { border-radius: 6px; padding: 3px 7px; font-size: 10px; font-weight: 700; text-align: center; }
-    .ai-note { margin-top: 5px; font-size: 10px; color: #fbbf24; opacity: 0.8; }
-    .footer { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 14px 16px; text-align: center; margin-top: 8px; }
-    .footer-title { font-size: 14px; font-weight: 700; color: #d4af37; margin-bottom: 7px; }
-    .footer-text { font-size: 11px; color: #8899aa; line-height: 1.7; max-width: 600px; margin: 0 auto; }
-    .footer-sub { margin-top: 8px; font-size: 11px; color: #445; }
-    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
-    .loading { font-size: 11px; color: #fbbf24; animation: pulse 1s infinite; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>World Cup 2026 — Best Bet Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0E211B;
+    --bg-deep:#0A1A15;
+    --surface:#16322A;
+    --surface-2:#1C3D32;
+    --line:#2C4C3F;
+    --chalk:#ECE6D6;
+    --muted:#9FB4A8;
+    --muted-2:#6F8579;
+    --gold:#E8B23A;
+    --over:#E0954A;
+    --under:#4D93A0;
+    --avoid:#8A7B6C;
+    --high:#E8B23A;
+    --mod:#4D93A0;
+    --low:#6F8579;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(ellipse at top, rgba(232,178,58,0.06), transparent 55%),
+      var(--bg);
+    color:var(--chalk);
+    font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;
+    padding-bottom:60px;
+  }
+  a{color:var(--gold);}
+
+  /* ---------- Header ---------- */
+  header.hero{
+    padding:48px 24px 28px;
+    text-align:center;
+    border-bottom:1px solid var(--line);
+    background:
+      repeating-linear-gradient(90deg, transparent 0 39px, rgba(255,255,255,0.025) 39px 40px),
+      var(--bg-deep);
+    position:relative;
+  }
+  .eyebrow{
+    font-family:'Space Mono',monospace;
+    letter-spacing:.35em;
+    font-size:11px;
+    color:var(--gold);
+    text-transform:uppercase;
+    margin-bottom:14px;
+  }
+  h1.title{
+    font-family:'Oswald',sans-serif;
+    font-weight:700;
+    font-size:clamp(32px,6vw,58px);
+    margin:0;
+    letter-spacing:.02em;
+    text-transform:uppercase;
+    line-height:1.05;
+  }
+  h1.title span{color:var(--gold);}
+  .subtitle{
+    font-family:'Space Mono',monospace;
+    color:var(--muted);
+    font-size:13px;
+    margin-top:14px;
+    letter-spacing:.04em;
+  }
+  .legend{
+    margin-top:26px;
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:10px 22px;
+    font-size:12px;
+    color:var(--muted);
+  }
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .dot{width:10px;height:10px;border-radius:50%;display:inline-block;}
+  .dot.high{background:var(--high);}
+  .dot.mod{background:var(--mod);}
+  .dot.low{background:var(--low);border:1px solid var(--muted-2);background:transparent;}
+
+  /* ---------- Stats strip ---------- */
+  .stats{
+    max-width:1040px;margin:28px auto 0;padding:0 20px;
+    display:grid;grid-template-columns:repeat(4,1fr);gap:12px;
+  }
+  .stat-card{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:14px 16px;
+    text-align:center;
+  }
+  .stat-num{
+    font-family:'Oswald',sans-serif;font-size:30px;font-weight:600;line-height:1;
+  }
+  .stat-num.high{color:var(--high);}
+  .stat-num.mod{color:var(--mod);}
+  .stat-num.skip{color:var(--avoid);}
+  .stat-label{
+    font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.18em;
+    text-transform:uppercase;color:var(--muted);margin-top:6px;
+  }
+
+  /* ---------- Controls ---------- */
+  .controls{
+    max-width:1040px;margin:24px auto 0;padding:0 20px;
+    display:flex;flex-wrap:wrap;gap:10px;align-items:center;
+    position:sticky;top:0;z-index:30;
+    padding-top:14px;padding-bottom:14px;
+  }
+  .controls-bg{
+    position:sticky;top:0;z-index:29;
+    background:rgba(14,33,27,0.92);
+    backdrop-filter:blur(6px);
+    border-bottom:1px solid var(--line);
+  }
+  input[type="text"], select{
+    background:var(--surface);
+    border:1px solid var(--line);
+    color:var(--chalk);
+    font-family:'Inter',sans-serif;
+    font-size:13px;
+    padding:9px 12px;
+    border-radius:8px;
+    outline:none;
+  }
+  input[type="text"]:focus, select:focus, button:focus, .toggle:focus-within{
+    outline:2px solid var(--gold);outline-offset:1px;
+  }
+  input[type="text"]{flex:1 1 180px;min-width:140px;}
+  select{flex:0 0 auto;}
+  .toggle{
+    display:inline-flex;align-items:center;gap:8px;
+    background:var(--surface);border:1px solid var(--line);
+    border-radius:8px;padding:9px 12px;font-size:13px;cursor:pointer;
+    color:var(--muted);user-select:none;
+  }
+  .toggle input{accent-color:var(--gold);}
+  .toggle.active{color:var(--gold);border-color:var(--gold);}
+  .group-chips{
+    display:flex;flex-wrap:wrap;gap:6px;max-width:1040px;margin:0 auto;padding:14px 20px 0;
+  }
+  .chip{
+    font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.05em;
+    padding:5px 10px;border-radius:6px;border:1px solid var(--line);
+    background:var(--surface);color:var(--muted);cursor:pointer;
+  }
+  .chip.active{background:var(--gold);color:var(--bg-deep);border-color:var(--gold);font-weight:700;}
+
+  /* ---------- Date dividers ---------- */
+  .day-heading{
+    max-width:1040px;margin:34px auto 14px;padding:0 20px;
+    display:flex;align-items:center;gap:14px;
+  }
+  .day-heading h2{
+    font-family:'Oswald',sans-serif;text-transform:uppercase;
+    font-weight:600;font-size:16px;letter-spacing:.12em;
+    color:var(--gold);margin:0;white-space:nowrap;
+  }
+  .day-heading .rule{flex:1;height:1px;background:var(--line);}
+
+  /* ---------- Match list ---------- */
+  .matches{max-width:1040px;margin:0 auto;padding:0 20px;display:flex;flex-direction:column;gap:14px;}
+
+  .card{
+    display:grid;
+    grid-template-columns:104px 1fr 168px;
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:12px;
+    overflow:hidden;
+    position:relative;
+  }
+  .card .col-date{
+    padding:18px 12px;
+    display:flex;flex-direction:column;justify-content:center;align-items:center;
+    text-align:center;
+    border-right:2px dashed var(--line);
+    background:var(--surface-2);
+  }
+  .col-date .time{
+    font-family:'Space Mono',monospace;font-weight:700;font-size:15px;color:var(--chalk);
+  }
+  .col-date .group{
+    font-family:'Space Mono',monospace;font-size:11px;color:var(--muted);
+    margin-top:8px;letter-spacing:.1em;
+  }
+  .col-date .env{
+    margin-top:10px;font-size:18px;
+  }
+
+  .col-main{padding:16px 18px;}
+  .teams{
+    display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+    font-family:'Oswald',sans-serif;font-weight:600;font-size:19px;
+    text-transform:uppercase;letter-spacing:.01em;
+  }
+  .teams .vs{color:var(--muted-2);font-size:12px;font-family:'Space Mono',monospace;letter-spacing:.2em;}
+  .pred-score{
+    font-family:'Space Mono',monospace;font-weight:700;font-size:22px;
+    color:var(--gold);margin-left:auto;letter-spacing:.06em;
+  }
+  .pred-label{
+    font-family:'Space Mono',monospace;font-size:9px;color:var(--muted-2);
+    letter-spacing:.2em;text-transform:uppercase;margin-left:8px;align-self:center;
+  }
+  .meta-row{margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+  .pill{
+    font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.1em;
+    padding:4px 9px;border-radius:99px;border:1px solid var(--line);color:var(--muted);
+    text-transform:uppercase;display:inline-flex;align-items:center;gap:5px;
+  }
+  .pill .dot{width:7px;height:7px;}
+
+  .analysis-toggle{
+    margin-top:10px;font-family:'Space Mono',monospace;font-size:11px;
+    color:var(--muted-2);cursor:pointer;letter-spacing:.08em;
+    background:none;border:none;padding:0;text-decoration:underline dotted;
+  }
+  .analysis{
+    margin-top:10px;font-size:13px;line-height:1.55;color:var(--muted);
+    display:none;border-left:2px solid var(--line);padding-left:12px;
+  }
+  .analysis.open{display:block;}
+
+  .result-row{
+    margin-top:12px;display:flex;align-items:center;gap:10px;
+    border-top:1px solid var(--line);padding-top:12px;
+  }
+  .result-row label{
+    font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.15em;
+    color:var(--muted-2);text-transform:uppercase;
+  }
+  .result-row input{
+    width:70px;text-align:center;font-family:'Space Mono',monospace;font-weight:700;
+    background:var(--bg-deep);border:1px solid var(--line);color:var(--chalk);
+    border-radius:6px;padding:6px 8px;font-size:13px;
+  }
+  .result-row input.exact{border-color:#6FBF73;color:#6FBF73;}
+  .result-row input.direction{border-color:var(--mod);color:var(--mod);}
+  .result-row input.miss{border-color:#D6694C;color:#D6694C;}
+  .ou-result{font-family:'Space Mono',monospace;font-size:11px;color:var(--muted);}
+  .ou-result.hit{color:#6FBF73;}
+  .ou-result.miss{color:#D6694C;}
+
+  /* ---------- Best bet stamp ---------- */
+  .col-bet{
+    display:flex;align-items:center;justify-content:center;
+    padding:16px;
+    border-left:2px dashed var(--line);
+    background:
+      radial-gradient(circle at 50% 50%, rgba(232,178,58,0.05), transparent 70%),
+      var(--surface-2);
+  }
+  .stamp{
+    width:128px;height:128px;border-radius:50%;
+    border:3px double var(--stamp-color);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    text-align:center;
+    transform:rotate(-7deg);
+    color:var(--stamp-color);
+    position:relative;
+  }
+  .stamp .sb-label{
+    font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.25em;
+    text-transform:uppercase;opacity:.85;
+  }
+  .stamp .sb-pick{
+    font-family:'Oswald',sans-serif;font-weight:700;font-size:18px;
+    text-transform:uppercase;letter-spacing:.03em;margin:4px 0 2px;line-height:1.1;
+  }
+  .stamp .sb-conf{
+    font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.18em;
+    text-transform:uppercase;opacity:.8;
+  }
+  .stamp.skip{
+    border-style:dashed;opacity:.75;
+  }
+  .stamp.skip .sb-pick{font-size:14px;}
+
+  /* ---------- Mobile ---------- */
+  @media (max-width:720px){
+    .card{grid-template-columns:1fr;}
+    .col-date{
+      flex-direction:row;justify-content:space-between;border-right:none;
+      border-bottom:2px dashed var(--line);padding:10px 16px;
+    }
+    .col-date .env{margin-top:0;}
+    .col-date .group{margin-top:0;}
+    .col-bet{border-left:none;border-top:2px dashed var(--line);}
+    .pred-score{margin-left:0;}
+    .pred-label{margin-left:0;}
+    .stats{grid-template-columns:repeat(2,1fr);}
+  }
+
+  footer{
+    max-width:1040px;margin:50px auto 0;padding:24px 20px;
+    border-top:1px solid var(--line);
+    font-family:'Space Mono',monospace;font-size:11px;color:var(--muted-2);
+    text-align:center;line-height:1.7;
+  }
+  footer strong{color:var(--gold);}
+
+  .empty-state{
+    text-align:center;padding:60px 20px;color:var(--muted-2);
+    font-family:'Space Mono',monospace;font-size:13px;letter-spacing:.05em;
+  }
+</style>
 </head>
 <body>
 
-<div class="header">
-  <div class="header-inner">
-    <div>
-      <div class="title">⚽ World Cup 2026</div>
-      <div class="subtitle">by William Knott</div>
-    </div>
-    <div>
-      <div class="stats" id="stats"></div>
-      <div class="built">Built by William Knott</div>
-    </div>
+<header class="hero">
+  <div class="eyebrow">FIFA World Cup 2026 · Group Stage · AEST</div>
+  <h1 class="title">Best <span>Bet</span> Tracker</h1>
+  <div class="subtitle">Predictions, over/under lines &amp; my pick for every Group Stage match — by William Knott</div>
+  <div class="legend">
+    <span><span class="dot high"></span> High confidence</span>
+    <span><span class="dot mod"></span> Moderate confidence</span>
+    <span><span class="dot low"></span> Low / sit-out</span>
+    <span>🏔 Altitude &nbsp; 🔥 Hot/Humid &nbsp; ❄ A/C &nbsp; 🌤 Mild</span>
   </div>
+</header>
+
+<div class="stats" id="stats"></div>
+
+<div class="controls-bg">
+  <div class="controls">
+    <input type="text" id="search" placeholder="Search team, e.g. England…">
+    <select id="ouFilter">
+      <option value="all">All bet types</option>
+      <option value="over">Best Bet: OVER</option>
+      <option value="under">Best Bet: UNDER</option>
+      <option value="skip">No Strong Bet</option>
+    </select>
+    <label class="toggle" id="highOnlyWrap">
+      <input type="checkbox" id="highOnly"> High confidence only
+    </label>
+  </div>
+  <div class="group-chips" id="groupChips"></div>
 </div>
 
-<div class="main">
-  <div class="guide" onclick="toggleGuide()">
-    <div class="guide-title">
-      <span>ℹ️ HOW TO USE THIS TRACKER</span>
-      <span id="guide-toggle" style="font-size:11px;color:#8899aa;">▼ show</span>
-    </div>
-    <div class="guide-body" id="guide-body">
-      <div class="guide-row">
-        <div style="background:rgba(255,255,255,0.1);border-radius:6px;padding:3px 10px;font-weight:700;font-size:14px;flex-shrink:0;">2-0</div>
-        <div><div class="guide-row-title">PRED — My Score Prediction</div><div class="guide-row-desc">My predicted final score (Team A – Team B), based on form, injuries, venue and altitude research.</div></div>
-      </div>
-      <div class="guide-row">
-        <div style="background:rgba(212,175,55,0.15);border:1px dashed rgba(212,175,55,0.4);color:#d4af37;border-radius:6px;padding:4px 9px;font-size:11px;font-weight:600;flex-shrink:0;">+ Result</div>
-        <div><div class="guide-row-title">+ Result — Enter the Actual Score</div><div class="guide-row-desc">Once played, tap this and type the real score e.g. 2-1 then press Enter. Tap the score again to correct it. Card turns green (exact), blue (right direction) or red (wrong).</div></div>
-      </div>
-      <div class="guide-row">
-        <div style="display:flex;gap:4px;flex-shrink:0;"><div style="background:rgba(26,107,60,0.4);color:#4ade80;border-radius:5px;padding:2px 6px;font-size:10px;font-weight:700;">⬆ OVER</div><div style="background:rgba(21,101,192,0.4);color:#93c5fd;border-radius:5px;padding:2px 6px;font-size:10px;font-weight:700;">⬇ UNDER</div></div>
-        <div><div class="guide-row-title">Over/Under Recommendation</div><div class="guide-row-desc">OVER = more goals than the line. UNDER = fewer goals. ⚠ AVOID = too close to call.</div></div>
-      </div>
-      <div class="guide-row">
-        <div style="display:flex;gap:4px;flex-shrink:0;"><div style="background:rgba(26,107,60,0.4);color:#4ade80;border-radius:5px;padding:2px 6px;font-size:10px;font-weight:700;">HIGH</div><div style="background:rgba(21,101,192,0.4);color:#93c5fd;border-radius:5px;padding:2px 6px;font-size:10px;font-weight:700;">MOD</div><div style="background:rgba(198,89,17,0.4);color:#fb923c;border-radius:5px;padding:2px 6px;font-size:10px;font-weight:700;">LOW</div></div>
-        <div><div class="guide-row-title">Confidence Level</div><div class="guide-row-desc">HIGH = very confident. MOD = fairly confident. LOW = could go either way.</div></div>
-      </div>
-      <div class="disclaimer">⚠️ <strong>Disclaimer:</strong> Personal predictions for entertainment only. Not guaranteed. Bet at your own risk. Please gamble responsibly.</div>
-    </div>
-  </div>
+<div id="matchList"></div>
 
-  <div id="fixtures-container"></div>
-
-  <div class="footer">
-    <div class="footer-title">⚽ Built by William Knott</div>
-    <div class="footer-text"><span style="color:#e8eaf0;font-weight:600;">⚠️ DISCLAIMER:</span> These predictions are my own personal opinions and are <span style="color:#e8eaf0;">not guaranteed to be correct</span>. All scores and over/under recommendations are for <span style="color:#e8eaf0;">entertainment purposes only</span>. <span style="color:#f87171;font-weight:600;">If you choose to bet, you do so entirely at your own risk.</span> Please gamble responsibly.</div>
-    <div class="footer-sub">World Cup 2026</div>
-  </div>
-</div>
+<footer>
+  ⚠ <strong>Disclaimer:</strong> Personal predictions for entertainment only. Not guaranteed.<br>
+  "Best Bet" = the over/under pick already carrying the highest confidence rating for that match.<br>
+  If you choose to bet, you do so entirely at your own risk. Please gamble responsibly.<br><br>
+  Your entered results are saved in this browser only (not shared or uploaded anywhere).
+</footer>
 
 <script>
-const GROUP_COLORS = {A:"#7c3aed",B:"#0369a1",C:"#047857",D:"#b45309",E:"#be123c",F:"#0e7490",G:"#65a30d",H:"#d97706",I:"#6d28d9",J:"#059669",K:"#dc2626",L:"#2563eb"};
-const CONF_COLORS = {HIGH:"#1a6b3c",MOD:"#1565c0",LOW:"#c65911"};
+const MATCHES = [{"date": "Fri 12 Jun", "time": "5:00 AM", "teamA": "Mexico", "teamB": "South Africa", "score": "2-0", "env": "altitude", "goalsPred": 2, "ouLine": 2.5, "conf": "high", "ou": "under", "group": "A", "analysis": "ALT 2240m. South Africa arrive from sea-level — sprint capacity drops 21% by 60 mins. Both teams will tire. Altitude + fatigue = fewer goals in 2nd half. Low-scoring fortress game."}, {"date": "Fri 12 Jun", "time": "12:00 PM", "teamA": "South Korea", "teamB": "Czech Republic", "score": "2-1", "env": "altitude", "goalsPred": 3, "ouLine": 2.5, "conf": "mod", "ou": "over", "group": "A", "analysis": "ALT 1566m. Both teams attack-minded, Son and Schick are elite scorers. Altitude increases ball speed — more long-range efforts on target. 3 goals predicted."}, {"date": "Sat 13 Jun", "time": "5:00 AM", "teamA": "Canada", "teamB": "Bosnia & Herzegovina", "score": "2-1", "env": "mild", "goalsPred": 3, "ouLine": 2.5, "conf": "high", "ou": "over", "group": "B", "analysis": "MILD Toronto. Jonathan David + Buchanan vs Dzeko/Demirovic — both sides have goals in them. Open, attacking game expected. 3 goals predicted."}, {"date": "Sat 13 Jun", "time": "11:00 AM", "teamA": "USA", "teamB": "Paraguay", "score": "2-0", "env": "ac", "goalsPred": 2, "ouLine": 2.5, "conf": "high", "ou": "under", "group": "D", "analysis": "AC LA. USA expected to control and grind. Paraguay will sit deep and frustrate. Expect defensive contest — under 2.5 likely."}, {"date": "Sun 14 Jun", "time": "5:00 AM", "teamA": "Qatar", "teamB": "Switzerland", "score": "0-2", "env": "mild", "goalsPred": 2, "ouLine": 2.5, "conf": "high", "ou": "under", "group": "B", "analysis": "MILD SF. Switzerland clinical but conservative. Qatar defensive. SUI likely to win 2-0 through controlled possession — low total."}, {"date": "Sun 14 Jun", "time": "8:00 AM", "teamA": "Brazil", "teamB": "Morocco", "score": "2-1", "env": "hot", "goalsPred": 3, "ouLine": 2.5, "conf": "mod", "ou": "over", "group": "C", "analysis": "HOT New York open air, humid. Brazil attack (Vini Jr, Raphinha) vs Morocco counter (Hakimi, En-Nesyri). Both sides capable of goals. Heat reduces pace but quality tells. 3 goals predicted."}, {"date": "Sun 14 Jun", "time": "11:00 AM", "teamA": "Haiti", "teamB": "Scotland", "score": "0-2", "env": "hot", "goalsPred": 2, "ouLine": 2.5, "conf": "high", "ou": "under", "group": "C", "analysis": "HOT Boston, humid. Scotland expected to control but won't open up recklessly. Haiti sit deep. Expect controlled 2-0, low total."}, {"date": "Sun 14 Jun", "time": "2:00 PM", "teamA": "Australia", "teamB": "Turkey", "score": "1-1", "env": "ac", "goalsPred": 2, "ouLine": 2.5, "conf": "mod", "ou": "under", "group": "D", "analysis": "AC Vancouver. Cagey group stage opener for both. Neither team will overcommit. Tight 1-1 draw, under 2.5 goals."}, {"date": "Mon 15 Jun", "time": "3:00 AM", "teamA": "Germany", "teamB": "Curacao", "score": "4-0", "env": "ac", "goalsPred": 4, "ouLine": 3.5, "conf": "high", "ou": "over", "group": "E", "analysis": "AC Houston. Germany vs debutants ranked 120+. Wirtz/Musiala/Gnabry (out but replacements strong). One-sided — Germany to score 4+. Bet OVER 3.5."}, {"date": "Mon 15 Jun", "time": "6:00 AM", "teamA": "Netherlands", "teamB": "Japan", "score": "2-1", "env": "ac", "goalsPred": 3, "ouLine": 2.5, "conf": "mod", "ou": "over", "group": "F", "analysis": "AC Dallas. Netherlands attack-minded, Japan counter well. Both teams score — 3 goals expected in free-flowing AC conditions."}, {"date": "Mon 15 Jun", "time": "9:00 AM", "teamA": "Ivory Coast", "teamB": "Ecuador", "score": "1-1", "env": "hot", "goalsPred": 2, "ouLine": 2.5, "conf": "low", "ou": "under", "group": "E", "analysis": "HOT Philadelphia — brutal open-air heat. Heat kills tempo for both. Physical, low-energy contest. Under 2.5 recommended."}, {"date": "Mon 15 Jun", "time": "12:00 PM", "teamA": "Sweden", "teamB": "Tunisia", "score": "2-0", "env": "hot", "goalsPred": 2, "ouLine": 2.5, "conf": "high", "ou": "under", "group": "F", "analysis": "HOT Monterrey extreme heat 35°C+. Heat saps energy, fewer transitions. Sweden professional grind. Under 2.5."}, {"date": "Tue 16 Jun", "time": "2:00 AM", "teamA": "Spain", "teamB": "Cape Verde", "score": "3-0", "env": "ac", "goalsPred": 3, "ouLine": 2.5, "conf": "high", "ou": "over", "group": "H", "analysis": "AC Atlanta. Spain vs debutants. Yamal/Pedri/Morata — Spain will score 3+. OVER 2.5 very confident."}, {"date": "Tue 16 Jun", "time": "5:00 AM", "teamA": "Belgium", "teamB": "Egypt", "score": "2-1", "env": "mild", "goalsPred": 3, "ouLine": 2.5, "conf": "mod", "ou": "over", "group": "G", "analysis": "MILD Seattle. Belgium attack + Salah for Egypt. Both sides have cutting edge. 3 goals predicted — OVER 2.5."}, {"date": "Tue 16 Jun", "time": "8:00 AM", "teamA": "Saudi Arabia", "teamB": "Uruguay", "score": "0-2", "env": "hot", "goalsPred": 2, "ouLine": 2.5, "conf": "high", "ou": "under", "group": "H", "analysis": "HOT Miami — extreme humidity kills tempo. Uruguay professional, won't overextend. Saudi Arabia can't breach Uruguayan defence. Under 2.5."}, {"date": "Tue 16 Jun", "time": "11:00 AM", "teamA": "Iran", "teamB": "New Zealand", "score": "2-0", "env": "ac", "goalsPred": 2, "ouLine": 2.5, "conf": "high", "ou": "under", "group": "G", "analysis": "AC LA. Iran controlled, NZL limited. Professional Iran win — won't over-attack. Under 2.5."}, {"date": "Wed 17 Jun", "time": "5:00 AM", "teamA": "France", "teamB": "Senegal", "score": "3-1", "env": "hot", "goalsPred": 4, "ouLine": 2.5, "conf": "high", "ou": "over", "group": "I", "analysis": "HOT New York open air. Mbappe, Griezmann, Dembele vs Mane, Dia. Both sides attack with pace. Despite heat, quality of forwards means goals. OVER 2.5 confident."}, {"date": "Wed 17 Jun", "time": "8:00 AM", "teamA": "Iraq", "teamB": "Norway", "score": "0-3", "env": "hot", "goalsPred": 3, "ouLine": 2.5, "conf": "high", "ou": "over", "group": "I", "analysis": "HOT Boston humid. Haaland + Odegaard dominate. Iraq can't contain Norway. Haaland likely to score 1-2. OVER 2.5."}, {"date": "Wed 17 Jun", "time": "11:00 AM", "teamA": "Argentina", "teamB": "Algeria", "score": "2-0", "env": "hot", "goalsPred": 2, "ouLine": 2.5, "conf": "high", "ou": "under", "group": "J", "analysis": "HOT Kansas City — open air, humid heat. Messi DOUBTFUL. Argentina controlled without him. Algeria sit deep. HOT conditions reduce total. Under 2.5."}, {"date": "Wed 17 Jun", "time": "2:00 PM", "teamA": "Austria", "teamB": "Jordan", "score": "2-0", "env": "mild", "goalsPred": 2, "ouLine": 2.5, "conf": "high", "ou": "under", "group": "J", "analysis": "MILD SF. Austria professional grind vs debutants. Jordan sit deep. Clean controlled win. Under 2.5."}, {"date": "Thu 18 Jun", "time": "3:00 AM", "teamA": "Portugal", "teamB": "DR Congo", "score": "3-0", "env": "ac", "goalsPred": 3, "ouLine": 2.5, "conf": "high", "ou": "over", "group": "K", "analysis": "AC Houston. Ronaldo, Bruno Fernandes motivated. DRC limited. Portugal clinical — 3 goals predicted. OVER 2.5."}, {"date": "Thu 18 Jun", "time": "6:00 AM", "teamA": "England", "teamB": "Croatia", "score": "2-0", "env": "ac", "goalsPred": 2, "ouLine": 2.5, "conf": "high", "ou": "under", "group": "L", "analysis": "AC Dallas. England defensive solidity — 8 clean sheets in qualifying. Croatia without prime Modric. England grind it out. Under 2.5."}, {"date": "Thu 18 Jun", "time": "9:00 AM", "teamA": "Ghana", "teamB": "Panama", "score": "2-1", "env": "mild", "goalsPred": 3, "ouLine": 2.5, "conf": "mod", "ou": "over", "group": "L", "analysis": "MILD Toronto. Ghana weakened (Kudus out) but still quality. Panama can counter. Expect open game — 3 goals."}, {"date": "Thu 18 Jun", "time": "12:00 PM", "teamA": "Uzbekistan", "teamB": "Colombia", "score": "0-2", "env": "altitude", "goalsPred": 2, "ouLine": 2.5, "conf": "high", "ou": "under", "group": "K", "analysis": "ALT 2240m Mexico City. Both teams affected by altitude. Colombia controlled, won't over-extend. Under 2.5."}, {"date": "Fri 19 Jun", "time": "2:00 AM", "teamA": "Czech Republic", "teamB": "South Africa", "score": "2-0", "env": "ac", "goalsPred": 2, "ouLine": 2.5, "conf": "high", "ou": "under", "group": "A", "analysis": "AC Atlanta. CZE controlled quality vs RSA. Both teams tired after altitude game 1. Professional CZE win. Under 2.5."}, {"date": "Fri 19 Jun", "time": "5:00 AM", "teamA": "Switzerland", "teamB": "Bosnia & Herzegovina", "score": "2-0", "env": "ac", "goalsPred": 2, "ouLine": 2.5, "conf": "high", "ou": "under", "group": "B", "analysis": "AC LA. Switzerland dominant but conservative. BIH defensive. SUI 2-0 clean sheet. Under 2.5."}, {"date": "Fri 19 Jun", "time": "8:00 AM", "teamA": "Canada", "teamB": "Qatar", "score": "3-0", "env": "ac", "goalsPred": 3, "ouLine": 2.5, "conf": "high", "ou": "over", "group": "B", "analysis": "AC Vancouver. Canada vs group whipping boys. Jonathan David + home crowd. Qatar sit deep but concede 3. OVER 2.5."}, {"date": "Fri 19 Jun", "time": "11:00 AM", "teamA": "Mexico", "teamB": "South Korea", "score": "2-1", "env": "altitude", "goalsPred": 3, "ouLine": 2.5, "conf": "mod", "ou": "over", "group": "A", "analysis": "ALT 1566m + humid. Both attack-minded, Son vs Mexican attack. Altitude boosts ball speed — more set piece danger. 3 goals expected. OVER 2.5."}, {"date": "Sat 20 Jun", "time": "5:00 AM", "teamA": "USA", "teamB": "Australia", "score": "2-1", "env": "mild", "goalsPred": 3, "ouLine": 2.5, "conf": "mod", "ou": "over", "group": "D", "analysis": "MILD Seattle. Both teams need/want to attack. AUS will push forward — open game. 3 goals predicted. OVER 2.5."}, {"date": "Sat 20 Jun", "time": "8:00 AM", "teamA": "Scotland", "teamB": "Morocco", "score": "0-1", "env": "hot", "goalsPred": 1, "ouLine": 1.5, "conf": "mod", "ou": "under", "group": "C", "analysis": "HOT Boston open air, humid. Tight tactical affair. Both teams cautious. Heat kills tempo. UNDER 1.5 recommended."}, {"date": "Sat 20 Jun", "time": "11:00 AM", "teamA": "Brazil", "teamB": "Haiti", "score": "4-0", "env": "hot", "goalsPred": 4, "ouLine": 3.5, "conf": "high", "ou": "over", "group": "C", "analysis": "HOT Philadelphia extreme heat. Brazil vs weakest team in tournament. Despite heat, quality gap too large. OVER 3.5."}, {"date": "Sat 20 Jun", "time": "2:00 PM", "teamA": "Turkey", "teamB": "Paraguay", "score": "1-1", "env": "mild", "goalsPred": 2, "ouLine": 2.5, "conf": "low", "ou": "under", "group": "D", "analysis": "MILD SF. Both cautious, neither wants to lose. Expect a cagey draw — Under 2.5."}, {"date": "Sun 21 Jun", "time": "3:00 AM", "teamA": "Netherlands", "teamB": "Sweden", "score": "2-0", "env": "ac", "goalsPred": 2, "ouLine": 2.5, "conf": "high", "ou": "under", "group": "F", "analysis": "AC Houston. NED controlled, defensive strength (Van Dijk). Sweden limited in possession. Professional NED win. Under 2.5."}, {"date": "Sun 21 Jun", "time": "6:00 AM", "teamA": "Germany", "teamB": "Ivory Coast", "score": "2-1", "env": "mild", "goalsPred": 3, "ouLine": 2.5, "conf": "mod", "ou": "over", "group": "E", "analysis": "MILD Toronto. Germany attack + CIV counter pace. Both teams offensive. 3 goals predicted. OVER 2.5."}, {"date": "Sun 21 Jun", "time": "9:00 AM", "teamA": "Ecuador", "teamB": "Curacao", "score": "3-0", "env": "hot", "goalsPred": 3, "ouLine": 2.5, "conf": "high", "ou": "over", "group": "E", "analysis": "HOT Kansas City. Ecuador vs debutants. Caicedo drives forward, quality gap huge. OVER 2.5."}, {"date": "Sun 21 Jun", "time": "12:00 PM", "teamA": "Tunisia", "teamB": "Japan", "score": "0-1", "env": "hot", "goalsPred": 1, "ouLine": 1.5, "conf": "mod", "ou": "under", "group": "F", "analysis": "HOT Monterrey 35°C+. Brutal conditions for both teams. Expect cagey low-energy affair. UNDER 1.5 goals."}, {"date": "Mon 22 Jun", "time": "2:00 AM", "teamA": "Spain", "teamB": "Saudi Arabia", "score": "4-0", "env": "ac", "goalsPred": 4, "ouLine": 3.5, "conf": "high", "ou": "over", "group": "H", "analysis": "AC Atlanta. Spain full strength vs Saudi Arabia. Yamal/Pedri/Morata. Dominant win expected. OVER 3.5."}, {"date": "Mon 22 Jun", "time": "5:00 AM", "teamA": "Belgium", "teamB": "Iran", "score": "3-0", "env": "ac", "goalsPred": 3, "ouLine": 2.5, "conf": "high", "ou": "over", "group": "G", "analysis": "AC LA. Belgium attack-minded, Iran limited. Doku, Lukaku, De Bruyne — 3 goals predicted. OVER 2.5."}, {"date": "Mon 22 Jun", "time": "8:00 AM", "teamA": "Uruguay", "teamB": "Cape Verde", "score": "3-0", "env": "hot", "goalsPred": 3, "ouLine": 2.5, "conf": "high", "ou": "over", "group": "H", "analysis": "HOT Miami — humidity. URU vs debutants. Darwin Nunez to score. OVER 2.5 despite heat."}, {"date": "Mon 22 Jun", "time": "11:00 AM", "teamA": "New Zealand", "teamB": "Egypt", "score": "0-2", "env": "ac", "goalsPred": 2, "ouLine": 2.5, "conf": "high", "ou": "under", "group": "G", "analysis": "AC Vancouver. Egypt controlled, Salah clinical. NZL sit deep. Professional 2-0 win. Under 2.5."}, {"date": "Tue 23 Jun", "time": "3:00 AM", "teamA": "Argentina", "teamB": "Austria", "score": "3-0", "env": "ac", "goalsPred": 3, "ouLine": 2.5, "conf": "high", "ou": "over", "group": "J", "analysis": "AC Dallas. Messi fit by now + Alvarez/Lautaro. Austria outclassed. Argentina dominant in cool AC. OVER 2.5."}, {"date": "Tue 23 Jun", "time": "7:00 AM", "teamA": "France", "teamB": "Iraq", "score": "4-0", "env": "hot", "goalsPred": 4, "ouLine": 3.5, "conf": "high", "ou": "over", "group": "I", "analysis": "HOT Philadelphia extreme heat. France vs Iraq — massive quality gap. Mbappe + Griezmann. OVER 3.5 even in heat."}, {"date": "Tue 23 Jun", "time": "10:00 AM", "teamA": "Norway", "teamB": "Senegal", "score": "2-1", "env": "hot", "goalsPred": 3, "ouLine": 2.5, "conf": "mod", "ou": "over", "group": "I", "analysis": "HOT New York humid. Haaland vs Mane — two elite strikers. Both score. Open game. OVER 2.5."}, {"date": "Tue 23 Jun", "time": "1:00 PM", "teamA": "Jordan", "teamB": "Algeria", "score": "0-1", "env": "mild", "goalsPred": 1, "ouLine": 1.5, "conf": "mod", "ou": "under", "group": "J", "analysis": "MILD SF. Cautious tactical match. Algeria professional, Jordan defensive. Low scoring. UNDER 1.5."}, {"date": "Wed 24 Jun", "time": "3:00 AM", "teamA": "Portugal", "teamB": "Uzbekistan", "score": "3-0", "env": "ac", "goalsPred": 3, "ouLine": 2.5, "conf": "high", "ou": "over", "group": "K", "analysis": "AC Houston. Ronaldo/Bruno Fernandes. Uzbekistan limited. Portugal OVER 2.5 comfortable."}, {"date": "Wed 24 Jun", "time": "6:00 AM", "teamA": "England", "teamB": "Ghana", "score": "3-0", "env": "hot", "goalsPred": 3, "ouLine": 2.5, "conf": "high", "ou": "over", "group": "L", "analysis": "HOT Boston humid. England quality + Ghana missing Kudus/Salisu. England to score 3+. OVER 2.5."}, {"date": "Wed 24 Jun", "time": "9:00 AM", "teamA": "Panama", "teamB": "Croatia", "score": "0-2", "env": "mild", "goalsPred": 2, "ouLine": 2.5, "conf": "high", "ou": "under", "group": "L", "analysis": "MILD Toronto. Croatia controlled, Panama defensive. Professional 2-0. Under 2.5."}, {"date": "Wed 24 Jun", "time": "12:00 PM", "teamA": "Colombia", "teamB": "DR Congo", "score": "2-0", "env": "altitude", "goalsPred": 2, "ouLine": 2.5, "conf": "high", "ou": "under", "group": "K", "analysis": "ALT 1566m + warm. Colombia controlled. DRC sit deep. Altitude reduces tempo. Under 2.5."}, {"date": "Thu 25 Jun", "time": "5:00 AM", "teamA": "Switzerland", "teamB": "Canada", "score": "2-1", "env": "ac", "goalsPred": 3, "ouLine": 2.5, "conf": "mod", "ou": "over", "group": "B", "analysis": "AC Vancouver. Both need points. Jonathan David will score for CAN. SUI quality edges it. OVER 2.5 in open decider."}, {"date": "Thu 25 Jun", "time": "5:00 AM", "teamA": "Bosnia & Herzegovina", "teamB": "Qatar", "score": "3-0", "env": "mild", "goalsPred": 3, "ouLine": 2.5, "conf": "high", "ou": "over", "group": "B", "analysis": "MILD Seattle. BIH needs goals, Qatar eliminated. Open game. Dzeko/Demirovic to score. OVER 2.5."}, {"date": "Thu 25 Jun", "time": "8:00 AM", "teamA": "Scotland", "teamB": "Brazil", "score": "0-3", "env": "hot", "goalsPred": 3, "ouLine": 2.5, "conf": "high", "ou": "over", "group": "C", "analysis": "HOT Miami humidity. Brazil dominant despite heat. Vini Jr, Raphinha too good. OVER 2.5."}, {"date": "Thu 25 Jun", "time": "8:00 AM", "teamA": "Morocco", "teamB": "Haiti", "score": "3-0", "env": "ac", "goalsPred": 3, "ouLine": 2.5, "conf": "high", "ou": "over", "group": "C", "analysis": "AC Atlanta. Morocco vs weakest team. En-Nesyri, Ziyech to score. OVER 2.5 comfortable."}, {"date": "Thu 25 Jun", "time": "11:00 AM", "teamA": "Czech Republic", "teamB": "Mexico", "score": "1-2", "env": "altitude", "goalsPred": 3, "ouLine": 2.5, "conf": "mod", "ou": "over", "group": "A", "analysis": "ALT 2240m Azteca. Both need result — open, attacking game. Schick scores for CZE. MEX score 2 at home fortress. OVER 2.5."}, {"date": "Thu 25 Jun", "time": "11:00 AM", "teamA": "South Africa", "teamB": "South Korea", "score": "0-2", "env": "hot", "goalsPred": 2, "ouLine": 2.5, "conf": "mod", "ou": "under", "group": "A", "analysis": "HOT Monterrey 35°C+ extreme heat. Both tired from 2 altitude games. Heat + fatigue = low energy, fewer goals. Under 2.5."}, {"date": "Fri 26 Jun", "time": "6:00 AM", "teamA": "Curacao", "teamB": "Ivory Coast", "score": "0-2", "env": "hot", "goalsPred": 2, "ouLine": 2.5, "conf": "high", "ou": "under", "group": "E", "analysis": "HOT Philadelphia extreme heat. CIV controlled. CUR sit deep. Heat suppresses total. Under 2.5."}, {"date": "Fri 26 Jun", "time": "6:00 AM", "teamA": "Ecuador", "teamB": "Germany", "score": "1-2", "env": "hot", "goalsPred": 3, "ouLine": 2.5, "conf": "mod", "ou": "over", "group": "E", "analysis": "HOT New York humid. Germany attack vs Ecuador counter (Caicedo). Both teams score. Despite heat, quality means goals. OVER 2.5."}, {"date": "Fri 26 Jun", "time": "9:00 AM", "teamA": "Japan", "teamB": "Sweden", "score": "2-1", "env": "ac", "goalsPred": 3, "ouLine": 2.5, "conf": "mod", "ou": "over", "group": "F", "analysis": "AC Dallas. AC conditions = full tempo. Japan technical vs Sweden direct. Both teams score. OVER 2.5."}, {"date": "Fri 26 Jun", "time": "9:00 AM", "teamA": "Tunisia", "teamB": "Netherlands", "score": "0-2", "env": "hot", "goalsPred": 2, "ouLine": 2.5, "conf": "high", "ou": "under", "group": "F", "analysis": "HOT Kansas City open air. NED controlled and defensively solid (Van Dijk). Heat reduces Tunisia attacking output. Under 2.5."}, {"date": "Fri 26 Jun", "time": "12:00 PM", "teamA": "Turkey", "teamB": "USA", "score": "1-1", "env": "ac", "goalsPred": 2, "ouLine": 2.5, "conf": "low", "ou": "avoid", "group": "D", "analysis": "AC LA. Genuine toss-up, too close to call. Both teams cautious with qualification on the line. AVOID this market."}, {"date": "Fri 26 Jun", "time": "12:00 PM", "teamA": "Paraguay", "teamB": "Australia", "score": "0-1", "env": "mild", "goalsPred": 1, "ouLine": 1.5, "conf": "mod", "ou": "under", "group": "D", "analysis": "MILD SF. Both teams cautious in must-not-lose game. Tight, defensive. Under 1.5 goals."}, {"date": "Sat 27 Jun", "time": "5:00 AM", "teamA": "Norway", "teamB": "France", "score": "1-2", "env": "hot", "goalsPred": 3, "ouLine": 2.5, "conf": "mod", "ou": "over", "group": "I", "analysis": "HOT Boston humid. Haaland will score. Mbappe/Griezmann respond. Despite heat, star quality means 3+ goals. OVER 2.5."}, {"date": "Sat 27 Jun", "time": "5:00 AM", "teamA": "Senegal", "teamB": "Iraq", "score": "3-0", "env": "mild", "goalsPred": 3, "ouLine": 2.5, "conf": "high", "ou": "over", "group": "I", "analysis": "MILD Toronto. Senegal vs eliminated Iraq. Mane/Dia to score. OVER 2.5."}, {"date": "Sat 27 Jun", "time": "10:00 AM", "teamA": "Cape Verde", "teamB": "Saudi Arabia", "score": "1-1", "env": "ac", "goalsPred": 2, "ouLine": 2.5, "conf": "low", "ou": "avoid", "group": "H", "analysis": "AC Houston. Dead rubber, both eliminated. Unpredictable. AVOID."}, {"date": "Sat 27 Jun", "time": "10:00 AM", "teamA": "Uruguay", "teamB": "Spain", "score": "0-2", "env": "altitude", "goalsPred": 2, "ouLine": 2.5, "conf": "high", "ou": "under", "group": "H", "analysis": "ALT 1566m + warm. Spain controlled. URU can't break Spain down. Spain grind it out. Under 2.5."}, {"date": "Sat 27 Jun", "time": "1:00 PM", "teamA": "Egypt", "teamB": "Iran", "score": "2-0", "env": "mild", "goalsPred": 2, "ouLine": 2.5, "conf": "high", "ou": "under", "group": "G", "analysis": "MILD Seattle. Egypt controlled, Salah clinical. Iran sit deep. Professional 2-0. Under 2.5."}, {"date": "Sat 27 Jun", "time": "1:00 PM", "teamA": "New Zealand", "teamB": "Belgium", "score": "0-3", "env": "ac", "goalsPred": 3, "ouLine": 2.5, "conf": "high", "ou": "over", "group": "G", "analysis": "AC Vancouver. Belgium dominant, NZL limited. Doku/Lukaku/De Bruyne. OVER 2.5."}, {"date": "Sun 28 Jun", "time": "7:00 AM", "teamA": "Panama", "teamB": "England", "score": "0-3", "env": "hot", "goalsPred": 3, "ouLine": 2.5, "conf": "high", "ou": "over", "group": "L", "analysis": "HOT New York humid. England dominant vs Panama. Kane/Bellingham/Saka. Despite heat, quality gap too large. OVER 2.5."}, {"date": "Sun 28 Jun", "time": "7:00 AM", "teamA": "Croatia", "teamB": "Ghana", "score": "2-0", "env": "hot", "goalsPred": 2, "ouLine": 2.5, "conf": "high", "ou": "under", "group": "L", "analysis": "HOT Philadelphia extreme heat. Croatia controlled. Ghana minus Kudus/Salisu — toothless. Heat suppresses goals. Under 2.5."}, {"date": "Sun 28 Jun", "time": "9:30 AM", "teamA": "Colombia", "teamB": "Portugal", "score": "1-2", "env": "hot", "goalsPred": 3, "ouLine": 2.5, "conf": "mod", "ou": "over", "group": "K", "analysis": "HOT Miami humidity. Portugal attack (Ronaldo/Bruno) vs Colombia (James/Diaz). Both sides score. Despite heat, quality forces goals. OVER 2.5."}, {"date": "Sun 28 Jun", "time": "9:30 AM", "teamA": "DR Congo", "teamB": "Uzbekistan", "score": "1-1", "env": "ac", "goalsPred": 2, "ouLine": 2.5, "conf": "low", "ou": "avoid", "group": "K", "analysis": "AC Atlanta. Dead rubber toss-up. Both fighting for 3rd spot. AVOID."}, {"date": "Sun 28 Jun", "time": "12:00 PM", "teamA": "Algeria", "teamB": "Austria", "score": "2-1", "env": "hot", "goalsPred": 3, "ouLine": 2.5, "conf": "mod", "ou": "over", "group": "J", "analysis": "HOT Kansas City. Both need points — open game. Algeria motivated. 3 goals predicted despite heat. OVER 2.5."}, {"date": "Sun 28 Jun", "time": "12:00 PM", "teamA": "Jordan", "teamB": "Argentina", "score": "0-4", "env": "ac", "goalsPred": 4, "ouLine": 3.5, "conf": "high", "ou": "over", "group": "J", "analysis": "AC Dallas. Argentina full strength (Messi + all). Jordan debutants. Dominant win. OVER 3.5."}]
+;
 
-const FIXTURES = [
-  {id:1,date:"Fri 12 Jun",dateOrder:1,time:"5:00 AM",teamA:"Mexico",teamB:"South Africa",group:"A",env:"🏔 ALT",prediction:"2-0",ou:"⬇ UNDER 2.5",conf:"HIGH",result:null},
-  {id:2,date:"Fri 12 Jun",dateOrder:1,time:"12:00 PM",teamA:"South Korea",teamB:"Czech Republic",group:"A",env:"🏔 ALT",prediction:"2-1",ou:"⬆ OVER 2.5",conf:"MOD",result:null},
-  {id:3,date:"Sat 13 Jun",dateOrder:2,time:"5:00 AM",teamA:"Canada",teamB:"Bosnia & Herz.",group:"B",env:"🌤 MILD",prediction:"2-1",ou:"⬆ OVER 2.5",conf:"HIGH",result:null},
-  {id:4,date:"Sat 13 Jun",dateOrder:2,time:"11:00 AM",teamA:"USA",teamB:"Paraguay",group:"D",env:"❄ A/C",prediction:"2-0",ou:"⬇ UNDER 2.5",conf:"HIGH",result:null},
-  {id:5,date:"Sun 14 Jun",dateOrder:3,time:"5:00 AM",teamA:"Qatar",teamB:"Switzerland",group:"B",env:"🌤 MILD",prediction:"0-2",ou:"⬇ UNDER 2.5",conf:"HIGH",result:null},
-  {id:6,date:"Sun 14 Jun",dateOrder:3,time:"8:00 AM",teamA:"Brazil",teamB:"Morocco",group:"C",env:"🔥 HOT",prediction:"2-1",ou:"⬆ OVER 2.5",conf:"MOD",result:null},
-  {id:7,date:"Sun 14 Jun",dateOrder:3,time:"11:00 AM",teamA:"Haiti",teamB:"Scotland",group:"C",env:"🔥 HOT",prediction:"0-2",ou:"⬇ UNDER 2.5",conf:"HIGH",result:null},
-  {id:8,date:"Sun 14 Jun",dateOrder:3,time:"2:00 PM",teamA:"Australia",teamB:"Turkey",group:"D",env:"❄ A/C",prediction:"1-1",ou:"⬇ UNDER 2.5",conf:"MOD",result:null},
-  {id:9,date:"Mon 15 Jun",dateOrder:4,time:"3:00 AM",teamA:"Germany",teamB:"Curacao",group:"E",env:"❄ A/C",prediction:"4-0",ou:"⬆ OVER 3.5",conf:"HIGH",result:null},
-  {id:10,date:"Mon 15 Jun",dateOrder:4,time:"6:00 AM",teamA:"Netherlands",teamB:"Japan",group:"F",env:"❄ A/C",prediction:"2-1",ou:"⬆ OVER 2.5",conf:"MOD",result:null},
-  {id:11,date:"Mon 15 Jun",dateOrder:4,time:"9:00 AM",teamA:"Ivory Coast",teamB:"Ecuador",group:"E",env:"🔥 HOT",prediction:"1-1",ou:"⬇ UNDER 2.5",conf:"LOW",result:null},
-  {id:12,date:"Mon 15 Jun",dateOrder:4,time:"12:00 PM",teamA:"Sweden",teamB:"Tunisia",group:"F",env:"🔥 HOT",prediction:"2-0",ou:"⬇ UNDER 2.5",conf:"HIGH",result:null},
-  {id:13,date:"Tue 16 Jun",dateOrder:5,time:"2:00 AM",teamA:"Spain",teamB:"Cape Verde",group:"H",env:"❄ A/C",prediction:"3-0",ou:"⬆ OVER 2.5",conf:"HIGH",result:null},
-  {id:14,date:"Tue 16 Jun",dateOrder:5,time:"5:00 AM",teamA:"Belgium",teamB:"Egypt",group:"G",env:"🌤 MILD",prediction:"2-1",ou:"⬆ OVER 2.5",conf:"MOD",result:null},
-  {id:15,date:"Tue 16 Jun",dateOrder:5,time:"8:00 AM",teamA:"Saudi Arabia",teamB:"Uruguay",group:"H",env:"🔥 HOT",prediction:"0-2",ou:"⬇ UNDER 2.5",conf:"HIGH",result:null},
-  {id:16,date:"Tue 16 Jun",dateOrder:5,time:"11:00 AM",teamA:"Iran",teamB:"New Zealand",group:"G",env:"❄ A/C",prediction:"2-0",ou:"⬇ UNDER 2.5",conf:"HIGH",result:null},
-  {id:17,date:"Wed 17 Jun",dateOrder:6,time:"5:00 AM",teamA:"France",teamB:"Senegal",group:"I",env:"🔥 HOT",prediction:"3-1",ou:"⬆ OVER 2.5",conf:"HIGH",result:null},
-  {id:18,date:"Wed 17 Jun",dateOrder:6,time:"8:00 AM",teamA:"Iraq",teamB:"Norway",group:"I",env:"🔥 HOT",prediction:"0-3",ou:"⬆ OVER 2.5",conf:"HIGH",result:null},
-  {id:19,date:"Wed 17 Jun",dateOrder:6,time:"11:00 AM",teamA:"Argentina",teamB:"Algeria",group:"J",env:"🔥 HOT",prediction:"2-0",ou:"⬇ UNDER 2.5",conf:"HIGH",result:null},
-  {id:20,date:"Wed 17 Jun",dateOrder:6,time:"2:00 PM",teamA:"Austria",teamB:"Jordan",group:"J",env:"🌤 MILD",prediction:"2-0",ou:"⬇ UNDER 2.5",conf:"HIGH",result:null},
-  {id:21,date:"Thu 18 Jun",dateOrder:7,time:"3:00 AM",teamA:"Portugal",teamB:"DR Congo",group:"K",env:"❄ A/C",prediction:"3-0",ou:"⬆ OVER 2.5",conf:"HIGH",result:null},
-  {id:22,date:"Thu 18 Jun",dateOrder:7,time:"6:00 AM",teamA:"England",teamB:"Croatia",group:"L",env:"❄ A/C",prediction:"2-0",ou:"⬇ UNDER 2.5",conf:"HIGH",result:null},
-  {id:23,date:"Thu 18 Jun",dateOrder:7,time:"9:00 AM",teamA:"Ghana",teamB:"Panama",group:"L",env:"🌤 MILD",prediction:"2-1",ou:"⬆ OVER 2.5",conf:"MOD",result:null},
-  {id:24,date:"Thu 18 Jun",dateOrder:7,time:"12:00 PM",teamA:"Uzbekistan",teamB:"Colombia",group:"K",env:"🏔 ALT",prediction:"0-2",ou:"⬇ UNDER 2.5",conf:"HIGH",result:null},
-  {id:25,date:"Fri 19 Jun",dateOrder:8,time:"2:00 AM",teamA:"Czech Republic",teamB:"South Africa",group:"A",env:"❄ A/C",prediction:"2-0",ou:"⬇ UNDER 2.5",conf:"HIGH",result:null},
-  {id:26,date:"Fri 19 Jun",dateOrder:8,time:"5:00 AM",teamA:"Switzerland",teamB:"Bosnia & Herz.",group:"B",env:"❄ A/C",prediction:"2-0",ou:"⬇ UNDER 2.5",conf:"HIGH",result:null},
-  {id:27,date:"Fri 19 Jun",dateOrder:8,time:"8:00 AM",teamA:"Canada",teamB:"Qatar",group:"B",env:"❄ A/C",prediction:"3-0",ou:"⬆ OVER 2.5",conf:"HIGH",result:null},
-  {id:28,date:"Fri 19 Jun",dateOrder:8,time:"11:00 AM",teamA:"Mexico",teamB:"South Korea",group:"A",env:"🏔 ALT",prediction:"2-1",ou:"⬆ OVER 2.5",conf:"MOD",result:null},
-  {id:29,date:"Sat 20 Jun",dateOrder:9,time:"5:00 AM",teamA:"USA",teamB:"Australia",group:"D",env:"🌤 MILD",prediction:"2-1",ou:"⬆ OVER 2.5",conf:"MOD",result:null},
-  {id:30,date:"Sat 20 Jun",dateOrder:9,time:"8:00 AM",teamA:"Scotland",teamB:"Morocco",group:"C",env:"🔥 HOT",prediction:"0-1",ou:"⬇ UNDER 1.5",conf:"MOD",result:null},
-  {id:31,date:"Sat 20 Jun",dateOrder:9,time:"11:00 AM",teamA:"Brazil",teamB:"Haiti",group:"C",env:"🔥 HOT",prediction:"4-0",ou:"⬆ OVER 3.5",conf:"HIGH",result:null},
-  {id:32,date:"Sat 20 Jun",dateOrder:9,time:"2:00 PM",teamA:"Turkey",teamB:"Paraguay",group:"D",env:"🌤 MILD",prediction:"1-1",ou:"⬇ UNDER 2.5",conf:"LOW",result:null},
-  {id:33,date:"Sun 21 Jun",dateOrder:10,time:"3:00 AM",teamA:"Netherlands",teamB:"Sweden",group:"F",env:"❄ A/C",prediction:"2-0",ou:"⬇ UNDER 2.5",conf:"HIGH",result:null},
-  {id:34,date:"Sun 21 Jun",dateOrder:10,time:"6:00 AM",teamA:"Germany",teamB:"Ivory Coast",group:"E",env:"🌤 MILD",prediction:"2-1",ou:"⬆ OVER 2.5",conf:"MOD",result:null},
-  {id:35,date:"Sun 21 Jun",dateOrder:10,time:"9:00 AM",teamA:"Ecuador",teamB:"Curacao",group:"E",env:"🔥 HOT",prediction:"3-0",ou:"⬆ OVER 2.5",conf:"HIGH",result:null},
-  {id:36,date:"Sun 21 Jun",dateOrder:10,time:"12:00 PM",teamA:"Tunisia",teamB:"Japan",group:"F",env:"🔥 HOT",prediction:"0-1",ou:"⬇ UNDER 1.5",conf:"MOD",result:null},
-  {id:37,date:"Mon 22 Jun",dateOrder:11,time:"2:00 AM",teamA:"Spain",teamB:"Saudi Arabia",group:"H",env:"❄ A/C",prediction:"4-0",ou:"⬆ OVER 3.5",conf:"HIGH",result:null},
-  {id:38,date:"Mon 22 Jun",dateOrder:11,time:"5:00 AM",teamA:"Belgium",teamB:"Iran",group:"G",env:"❄ A/C",prediction:"3-0",ou:"⬆ OVER 2.5",conf:"HIGH",result:null},
-  {id:39,date:"Mon 22 Jun",dateOrder:11,time:"8:00 AM",teamA:"Uruguay",teamB:"Cape Verde",group:"H",env:"🔥 HOT",prediction:"3-0",ou:"⬆ OVER 2.5",conf:"HIGH",result:null},
-  {id:40,date:"Mon 22 Jun",dateOrder:11,time:"11:00 AM",teamA:"New Zealand",teamB:"Egypt",group:"G",env:"❄ A/C",prediction:"0-2",ou:"⬇ UNDER 2.5",conf:"HIGH",result:null},
-  {id:41,date:"Tue 23 Jun",dateOrder:12,time:"3:00 AM",teamA:"Argentina",teamB:"Austria",group:"J",env:"❄ A/C",prediction:"3-0",ou:"⬆ OVER 2.5",conf:"HIGH",result:null},
-  {id:42,date:"Tue 23 Jun",dateOrder:12,time:"7:00 AM",teamA:"France",teamB:"Iraq",group:"I",env:"🔥 HOT",prediction:"4-0",ou:"⬆ OVER 3.5",conf:"HIGH",result:null},
-  {id:43,date:"Tue 23 Jun",dateOrder:12,time:"10:00 AM",teamA:"Norway",teamB:"Senegal",group:"I",env:"🔥 HOT",prediction:"2-1",ou:"⬆ OVER 2.5",conf:"MOD",result:null},
-  {id:44,date:"Tue 23 Jun",dateOrder:12,time:"1:00 PM",teamA:"Jordan",teamB:"Algeria",group:"J",env:"🌤 MILD",prediction:"0-1",ou:"⬇ UNDER 1.5",conf:"MOD",result:null},
-  {id:45,date:"Wed 24 Jun",dateOrder:13,time:"3:00 AM",teamA:"Portugal",teamB:"Uzbekistan",group:"K",env:"❄ A/C",prediction:"3-0",ou:"⬆ OVER 2.5",conf:"HIGH",result:null},
-  {id:46,date:"Wed 24 Jun",dateOrder:13,time:"6:00 AM",teamA:"England",teamB:"Ghana",group:"L",env:"🔥 HOT",prediction:"3-0",ou:"⬆ OVER 2.5",conf:"HIGH",result:null},
-  {id:47,date:"Wed 24 Jun",dateOrder:13,time:"9:00 AM",teamA:"Panama",teamB:"Croatia",group:"L",env:"🌤 MILD",prediction:"0-2",ou:"⬇ UNDER 2.5",conf:"HIGH",result:null},
-  {id:48,date:"Wed 24 Jun",dateOrder:13,time:"12:00 PM",teamA:"Colombia",teamB:"DR Congo",group:"K",env:"🏔 ALT",prediction:"2-0",ou:"⬇ UNDER 2.5",conf:"HIGH",result:null},
-  {id:49,date:"Thu 25 Jun",dateOrder:14,time:"5:00 AM",teamA:"Switzerland",teamB:"Canada",group:"B",env:"❄ A/C",prediction:"2-1",ou:"⬆ OVER 2.5",conf:"MOD",result:null},
-  {id:50,date:"Thu 25 Jun",dateOrder:14,time:"5:00 AM",teamA:"Bosnia & Herz.",teamB:"Qatar",group:"B",env:"🌤 MILD",prediction:"3-0",ou:"⬆ OVER 2.5",conf:"HIGH",result:null},
-  {id:51,date:"Thu 25 Jun",dateOrder:14,time:"8:00 AM",teamA:"Scotland",teamB:"Brazil",group:"C",env:"🔥 HOT",prediction:"0-3",ou:"⬆ OVER 2.5",conf:"HIGH",result:null},
-  {id:52,date:"Thu 25 Jun",dateOrder:14,time:"8:00 AM",teamA:"Morocco",teamB:"Haiti",group:"C",env:"❄ A/C",prediction:"3-0",ou:"⬆ OVER 2.5",conf:"HIGH",result:null},
-  {id:53,date:"Thu 25 Jun",dateOrder:14,time:"11:00 AM",teamA:"Czech Republic",teamB:"Mexico",group:"A",env:"🏔 ALT",prediction:"1-2",ou:"⬆ OVER 2.5",conf:"MOD",result:null},
-  {id:54,date:"Thu 25 Jun",dateOrder:14,time:"11:00 AM",teamA:"South Africa",teamB:"South Korea",group:"A",env:"🔥 HOT",prediction:"0-2",ou:"⬇ UNDER 2.5",conf:"MOD",result:null},
-  {id:55,date:"Fri 26 Jun",dateOrder:15,time:"6:00 AM",teamA:"Curacao",teamB:"Ivory Coast",group:"E",env:"🔥 HOT",prediction:"0-2",ou:"⬇ UNDER 2.5",conf:"HIGH",result:null},
-  {id:56,date:"Fri 26 Jun",dateOrder:15,time:"6:00 AM",teamA:"Ecuador",teamB:"Germany",group:"E",env:"🔥 HOT",prediction:"1-2",ou:"⬆ OVER 2.5",conf:"MOD",result:null},
-  {id:57,date:"Fri 26 Jun",dateOrder:15,time:"9:00 AM",teamA:"Japan",teamB:"Sweden",group:"F",env:"❄ A/C",prediction:"2-1",ou:"⬆ OVER 2.5",conf:"MOD",result:null},
-  {id:58,date:"Fri 26 Jun",dateOrder:15,time:"9:00 AM",teamA:"Tunisia",teamB:"Netherlands",group:"F",env:"🔥 HOT",prediction:"0-2",ou:"⬇ UNDER 2.5",conf:"HIGH",result:null},
-  {id:59,date:"Fri 26 Jun",dateOrder:15,time:"12:00 PM",teamA:"Turkey",teamB:"USA",group:"D",env:"❄ A/C",prediction:"1-1",ou:"⚠ AVOID 2.5",conf:"LOW",result:null},
-  {id:60,date:"Fri 26 Jun",dateOrder:15,time:"12:00 PM",teamA:"Paraguay",teamB:"Australia",group:"D",env:"🌤 MILD",prediction:"0-1",ou:"⬇ UNDER 1.5",conf:"MOD",result:null},
-  {id:61,date:"Sat 27 Jun",dateOrder:16,time:"5:00 AM",teamA:"Norway",teamB:"France",group:"I",env:"🔥 HOT",prediction:"1-2",ou:"⬆ OVER 2.5",conf:"MOD",result:null},
-  {id:62,date:"Sat 27 Jun",dateOrder:16,time:"5:00 AM",teamA:"Senegal",teamB:"Iraq",group:"I",env:"🌤 MILD",prediction:"3-0",ou:"⬆ OVER 2.5",conf:"HIGH",result:null},
-  {id:63,date:"Sat 27 Jun",dateOrder:16,time:"10:00 AM",teamA:"Cape Verde",teamB:"Saudi Arabia",group:"H",env:"❄ A/C",prediction:"1-1",ou:"⚠ AVOID 2.5",conf:"LOW",result:null},
-  {id:64,date:"Sat 27 Jun",dateOrder:16,time:"10:00 AM",teamA:"Uruguay",teamB:"Spain",group:"H",env:"🏔 ALT",prediction:"0-2",ou:"⬇ UNDER 2.5",conf:"HIGH",result:null},
-  {id:65,date:"Sat 27 Jun",dateOrder:16,time:"1:00 PM",teamA:"Egypt",teamB:"Iran",group:"G",env:"🌤 MILD",prediction:"2-0",ou:"⬇ UNDER 2.5",conf:"HIGH",result:null},
-  {id:66,date:"Sat 27 Jun",dateOrder:16,time:"1:00 PM",teamA:"New Zealand",teamB:"Belgium",group:"G",env:"❄ A/C",prediction:"0-3",ou:"⬆ OVER 2.5",conf:"HIGH",result:null},
-  {id:67,date:"Sun 28 Jun",dateOrder:17,time:"7:00 AM",teamA:"Panama",teamB:"England",group:"L",env:"🔥 HOT",prediction:"0-3",ou:"⬆ OVER 2.5",conf:"HIGH",result:null},
-  {id:68,date:"Sun 28 Jun",dateOrder:17,time:"7:00 AM",teamA:"Croatia",teamB:"Ghana",group:"L",env:"🔥 HOT",prediction:"2-0",ou:"⬇ UNDER 2.5",conf:"HIGH",result:null},
-  {id:69,date:"Sun 28 Jun",dateOrder:17,time:"9:30 AM",teamA:"Colombia",teamB:"Portugal",group:"K",env:"🔥 HOT",prediction:"1-2",ou:"⬆ OVER 2.5",conf:"MOD",result:null},
-  {id:70,date:"Sun 28 Jun",dateOrder:17,time:"9:30 AM",teamA:"DR Congo",teamB:"Uzbekistan",group:"K",env:"❄ A/C",prediction:"1-1",ou:"⚠ AVOID 2.5",conf:"LOW",result:null},
-  {id:71,date:"Sun 28 Jun",dateOrder:17,time:"12:00 PM",teamA:"Algeria",teamB:"Austria",group:"J",env:"🔥 HOT",prediction:"2-1",ou:"⬆ OVER 2.5",conf:"MOD",result:null},
-  {id:72,date:"Sun 28 Jun",dateOrder:17,time:"12:00 PM",teamA:"Jordan",teamB:"Argentina",group:"J",env:"❄ A/C",prediction:"0-4",ou:"⬆ OVER 3.5",conf:"HIGH",result:null}
-];
+const ENV_ICON = {altitude:'🏔', hot:'🔥', ac:'❄', mild:'🌤'};
+const ENV_LABEL = {altitude:'Altitude', hot:'Hot / Humid', ac:'A/C', mild:'Mild'};
+const CONF_LABEL = {high:'High', mod:'Mod', low:'Low'};
 
-// Load saved data from localStorage
-function loadSaved() {
-  try {
-    var saved = localStorage.getItem('wc2026_results');
-    var savedAI = localStorage.getItem('wc2026_ai');
-    if (saved) {
-      var results = JSON.parse(saved);
-      return FIXTURES.map(function(f) {
-        return Object.assign({}, f, {result: results[f.id] || null});
-      });
-    }
-  } catch(e) {}
-  return FIXTURES.map(function(f){ return Object.assign({}, f); });
-}
-
-function saveResults() {
-  try {
-    var results = {};
-    fixtures.forEach(function(f){ if (f.result) results[f.id] = f.result; });
-    localStorage.setItem('wc2026_results', JSON.stringify(results));
-    var aiData = {};
-    Object.keys(aiUpdated).forEach(function(k){ aiData[k] = aiUpdated[k]; });
-    localStorage.setItem('wc2026_ai', JSON.stringify(aiData));
-  } catch(e) {}
-}
-
-function loadAIUpdates() {
-  try {
-    var saved = localStorage.getItem('wc2026_ai');
-    if (saved) return JSON.parse(saved);
-  } catch(e) {}
-  return {};
-}
-
-let fixtures = loadSaved();
-let editingId = null;
-let aiUpdated = loadAIUpdates();
-
-function getAccuracy(pred, result) {
-  if (!pred || !result || !pred.includes('-') || !result.includes('-')) return null;
-  var pp = pred.split('-').map(Number), rp = result.split('-').map(Number);
-  if (isNaN(pp[0])||isNaN(pp[1])||isNaN(rp[0])||isNaN(rp[1])) return null;
-  if (pred === result) return 'exact';
-  var po = pp[0]>pp[1]?'W':pp[0]<pp[1]?'L':'D';
-  var ro = rp[0]>rp[1]?'W':rp[0]<rp[1]?'L':'D';
-  return po === ro ? 'direction' : 'wrong';
-}
-
-function updateStats() {
-  var played = fixtures.filter(f=>f.result).length;
-  var exact = fixtures.filter(f=>getAccuracy(f.prediction,f.result)==='exact').length;
-  var dir = fixtures.filter(f=>getAccuracy(f.prediction,f.result)==='direction').length;
-  var pct = played > 0 ? Math.round(((exact + dir*0.5)/played)*100) : null;
-  var html = '';
-  html += '<div class="stat-box"><div class="stat-val" style="color:#d4af37">'+played+'</div><div class="stat-lbl">Played</div></div>';
-  html += '<div class="stat-box"><div class="stat-val" style="color:#22c55e">'+exact+'</div><div class="stat-lbl">Exact ✓</div></div>';
-  html += '<div class="stat-box"><div class="stat-val" style="color:#60a5fa">'+dir+'</div><div class="stat-lbl">Direction</div></div>';
-  if (pct !== null) html += '<div class="stat-box"><div class="stat-val" style="color:#f59e0b">'+pct+'%</div><div class="stat-lbl">Score %</div></div>';
-  document.getElementById('stats').innerHTML = html;
-}
-
-function renderFixtures() {
-  var dateGroups = [];
-  var seen = {};
-  fixtures.forEach(function(f) {
-    if (!seen[f.date]) { seen[f.date] = true; dateGroups.push({date:f.date, order:f.dateOrder, items:[]}); }
-    dateGroups.find(function(d){return d.date===f.date;}).items.push(f);
-  });
-  dateGroups.sort(function(a,b){return a.order-b.order;});
-
-  var html = '';
-  dateGroups.forEach(function(dg) {
-    html += '<div class="date-group">';
-    html += '<div class="date-header"><span class="date-label">'+dg.date+'</span><span class="date-count">'+dg.items.length+' match'+(dg.items.length!==1?'es':'')+'</span></div>';
-    dg.items.forEach(function(f) {
-      var acc = getAccuracy(f.prediction, f.result);
-      var borderCol = f.result ? (acc==='exact'?'rgba(34,197,94,0.4)':acc==='direction'?'rgba(96,165,250,0.4)':'rgba(239,68,68,0.4)') : (aiUpdated[f.id]?'rgba(251,191,36,0.4)':'rgba(255,255,255,0.08)');
-      var bgCol = f.result ? (acc==='exact'?'rgba(34,197,94,0.07)':acc==='direction'?'rgba(96,165,250,0.07)':'rgba(239,68,68,0.07)') : 'rgba(255,255,255,0.03)';
-      var ouBg = f.ou.includes('OVER')?'rgba(26,107,60,0.4)':f.ou.includes('UNDER')?'rgba(21,101,192,0.4)':'rgba(109,76,65,0.4)';
-      var ouCol = f.ou.includes('OVER')?'#4ade80':f.ou.includes('UNDER')?'#93c5fd':'#d4a574';
-      var confBg = CONF_COLORS[f.conf]+'44';
-      var confCol = f.conf==='HIGH'?'#4ade80':f.conf==='MOD'?'#93c5fd':'#fb923c';
-      var predCol = aiUpdated[f.id] ? '#fbbf24' : '#e8eaf0';
-
-      html += '<div class="match-card" id="card-'+f.id+'" style="background:'+bgCol+';border-color:'+borderCol+'">';
-      html += '<div class="match-row1">';
-      html += '<div class="group-badge" style="background:'+GROUP_COLORS[f.group]+'">'+f.group+'</div>';
-      html += '<div class="match-time">'+f.time+'</div>';
-      html += '<div class="match-teams"><span class="team-name">'+f.teamA+'</span><span class="vs">vs</span><span class="team-name">'+f.teamB+'</span></div>';
-      html += '<div class="match-env">'+f.env+'</div>';
-      html += '</div>';
-
-      html += '<div class="match-row2">';
-      html += '<div class="pred-box"><div class="pred-label">PRED</div><div class="pred-score" style="color:'+predCol+'">'+f.prediction+'</div>'+(aiUpdated[f.id]?'<div class="updated-label">✦ UPDATED</div>':'')+'</div>';
-
-      if (f.result && editingId !== f.id) {
-        var rBg = acc==='exact'?'rgba(34,197,94,0.3)':acc==='direction'?'rgba(96,165,250,0.25)':'rgba(239,68,68,0.25)';
-        var rCol = acc==='exact'?'#4ade80':acc==='direction'?'#93c5fd':'#f87171';
-        var rTxt = acc==='exact'?'✓ EXACT':acc==='direction'?'↗ CORRECT':'✗ WRONG';
-        html += '<div class="result-area"><div class="result-box"><div class="result-label">RESULT</div><div class="result-score" style="background:'+rBg+';color:'+rCol+'" onclick="startEdit('+f.id+')">'+f.result+'</div><div class="result-acc" style="color:'+rCol+'">'+rTxt+'</div></div></div>';
-      } else if (editingId === f.id) {
-        html += '<div class="result-area"><div class="result-input-wrap"><input class="result-input" id="input-'+f.id+'" value="'+(f.result||'')+'" placeholder="2-1" onkeydown="handleKey(event,'+f.id+')"><button class="result-confirm" onclick="confirmResult('+f.id+')">✓</button><button class="result-clear" onclick="clearResult('+f.id+')">✕</button></div></div>';
-      } else {
-        html += '<div class="result-area"><button class="add-result-btn" onclick="startEdit('+f.id+')">+ Result</button></div>';
-      }
-
-      html += '<div class="ou-badge" style="background:'+ouBg+';color:'+ouCol+'">'+f.ou+'</div>';
-      html += '<div class="conf-badge" style="background:'+confBg+';color:'+confCol+'">'+f.conf+'</div>';
-      html += '</div>';
-      if (aiUpdated[f.id]) html += '<div class="ai-note">✦ '+aiUpdated[f.id]+'</div>';
-      html += '</div>';
-    });
-    html += '</div>';
-  });
-
-  document.getElementById('fixtures-container').innerHTML = html;
-  if (editingId !== null) {
-    var inp = document.getElementById('input-'+editingId);
-    if (inp) { inp.focus(); inp.select(); }
+function bestBet(m){
+  if(m.ou === 'avoid' || m.conf === 'low'){
+    return {type:'skip', pick:'No Strong Bet', sub:'Sit this one out', conf:m.conf};
   }
-  updateStats();
+  const dir = m.ou === 'over' ? 'OVER' : 'UNDER';
+  return {type:m.ou, pick:`${dir} ${m.ouLine}`, sub:`${CONF_LABEL[m.conf]} confidence`, conf:m.conf};
 }
 
-function startEdit(id) {
-  editingId = id;
-  renderFixtures();
+function stampColor(bb){
+  if(bb.type === 'skip') return 'var(--avoid)';
+  if(bb.conf === 'high') return 'var(--high)';
+  if(bb.conf === 'mod') return 'var(--mod)';
+  return 'var(--low)';
 }
 
-function handleKey(e, id) {
-  if (e.key === 'Enter') confirmResult(id);
-  if (e.key === 'Escape') { editingId = null; renderFixtures(); }
+// ---------- Result tracking (saved in your browser) ----------
+let userResults = {};
+function loadResults(){
+  try{
+    const raw = localStorage.getItem('wc2026-user-results');
+    userResults = raw ? JSON.parse(raw) : {};
+  }catch(e){ userResults = {}; }
+}
+function saveResults(){
+  try{ localStorage.setItem('wc2026-user-results', JSON.stringify(userResults)); }
+  catch(e){ console.error('save failed', e); }
 }
 
-function clearResult(id) {
-  fixtures = fixtures.map(function(f){ return f.id===id ? Object.assign({},f,{result:null}) : f; });
-  editingId = null;
-  saveResults();
-  renderFixtures();
+function classifyResult(predScore, actual){
+  // returns 'exact' | 'direction' | 'miss' | null
+  const pm = predScore.match(/^(\d+)-(\d+)$/);
+  const am = actual.match(/^(\d+)-(\d+)$/);
+  if(!pm || !am) return null;
+  const [pa,pb] = [parseInt(pm[1]), parseInt(pm[2])];
+  const [aa,ab] = [parseInt(am[1]), parseInt(am[2])];
+  if(pa===aa && pb===ab) return 'exact';
+  const predDir = Math.sign(pa-pb);
+  const actDir = Math.sign(aa-ab);
+  return predDir===actDir ? 'direction' : 'miss';
 }
 
-function confirmResult(id) {
-  var inp = document.getElementById('input-'+id);
-  if (!inp) return;
-  var val = inp.value.trim();
-  if (!val.match(/^\d+-\d+$/)) return;
-  fixtures = fixtures.map(function(f){ return f.id===id ? Object.assign({},f,{result:val}) : f; });
-  editingId = null;
-  saveResults();
-  renderFixtures();
-  updatePredictions(id, val);
+function classifyOU(m, actual){
+  const am = actual.match(/^(\d+)-(\d+)$/);
+  if(!am) return null;
+  const total = parseInt(am[1]) + parseInt(am[2]);
+  if(m.ou === 'avoid' || m.conf === 'low') return null;
+  const wentOver = total > m.ouLine;
+  const predicted = m.ou === 'over';
+  return wentOver === predicted ? 'hit' : 'miss';
 }
 
-async function updatePredictions(id, val) {
-  var done = fixtures.filter(function(f){return f.result && f.id!==id;}).map(function(f){return f.teamA+' vs '+f.teamB+' (Grp '+f.group+'): actual '+f.result+', predicted '+f.prediction;});
-  var thisF = fixtures.find(function(f){return f.id===id;});
-  var allResults = done.concat([thisF.teamA+' vs '+thisF.teamB+' (Grp '+thisF.group+'): actual '+val+', predicted '+thisF.prediction]);
-  var upcoming = fixtures.filter(function(f){return !f.result && f.id!==id;}).slice(0,10).map(function(f){return 'ID:'+f.id+'|'+f.teamA+' vs '+f.teamB+'|Grp '+f.group+'|'+f.env+'|Pred:'+f.prediction+'|O/U:'+f.ou;});
-  if (!upcoming.length) return;
-  try {
-    var res = await fetch('https://api.anthropic.com/v1/messages', {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:800,
-        messages:[{role:'user',content:'World Cup 2026 predictor. Update predictions only where new results give meaningful info.\n\nRESULTS:\n'+allResults.join('\n')+'\n\nUPCOMING:\n'+upcoming.join('\n')+'\n\nReturn raw JSON array only. Each: {"id":number,"prediction":"X-Y","ou":"string","conf":"HIGH|MOD|LOW","reason":"one sentence"}. Only changed predictions. If none return [].'}]})
+// ---------- Rendering ----------
+const GROUPS = [...new Set(MATCHES.map(m=>m.group))].sort();
+
+function renderStats(){
+  const total = MATCHES.length;
+  const high = MATCHES.filter(m=>bestBet(m).type!=='skip' && m.conf==='high').length;
+  const mod = MATCHES.filter(m=>bestBet(m).type!=='skip' && m.conf==='mod').length;
+  const skip = MATCHES.filter(m=>bestBet(m).type==='skip').length;
+  document.getElementById('stats').innerHTML = `
+    <div class="stat-card"><div class="stat-num">${total}</div><div class="stat-label">Group Matches</div></div>
+    <div class="stat-card"><div class="stat-num high">${high}</div><div class="stat-label">High-Conf Best Bets</div></div>
+    <div class="stat-card"><div class="stat-num mod">${mod}</div><div class="stat-label">Moderate Best Bets</div></div>
+    <div class="stat-card"><div class="stat-num skip">${skip}</div><div class="stat-label">No Strong Bet</div></div>
+  `;
+}
+
+function renderChips(){
+  const wrap = document.getElementById('groupChips');
+  wrap.innerHTML = '<button class="chip active" data-group="all">ALL GROUPS</button>' +
+    GROUPS.map(g=>`<button class="chip" data-group="${g}">GROUP ${g}</button>`).join('');
+  wrap.querySelectorAll('.chip').forEach(chip=>{
+    chip.addEventListener('click', ()=>{
+      wrap.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+      chip.classList.add('active');
+      render();
     });
-    var data = await res.json();
-    var text = data.content && data.content.map(function(i){return i.text||'';}).join('').replace(/```json|```/g,'').trim();
-    var updates = JSON.parse(text||'[]');
-    if (updates.length > 0) {
-      updates.forEach(function(u) {
-        fixtures = fixtures.map(function(f){
-          if (f.id===u.id) { aiUpdated[f.id]=u.reason||'Updated'; return Object.assign({},f,{prediction:u.prediction||f.prediction,ou:u.ou||f.ou,conf:u.conf||f.conf}); }
-          return f;
-        });
-      });
-      saveResults();
-      renderFixtures();
-    }
-  } catch(e) { console.log('AI update failed',e); }
+  });
 }
 
-function toggleGuide() {
-  var body = document.getElementById('guide-body');
-  var toggle = document.getElementById('guide-toggle');
-  if (body.classList.contains('open')) {
-    body.classList.remove('open');
-    toggle.textContent = '▼ show';
-  } else {
-    body.classList.add('open');
-    toggle.textContent = '▲ hide';
+function activeGroup(){
+  const el = document.querySelector('.chip.active');
+  return el ? el.dataset.group : 'all';
+}
+
+function matchCard(m, idx){
+  const bb = bestBet(m);
+  const color = stampColor(bb);
+  const actual = userResults[idx] || '';
+  const resultClass = actual ? (classifyResult(m.score, actual) || '') : '';
+  const ouClass = actual ? (classifyOU(m, actual) || '') : '';
+  let ouNote = '';
+  if(actual && bb.type !== 'skip'){
+    if(ouClass === 'hit') ouNote = `<span class="ou-result hit">✓ Best Bet hit (${bb.pick})</span>`;
+    else if(ouClass === 'miss') ouNote = `<span class="ou-result miss">✗ Best Bet missed (${bb.pick})</span>`;
   }
+
+  return `
+  <div class="card" data-idx="${idx}" data-group="${m.group}" data-ou="${bb.type}" data-conf="${m.conf}"
+       data-teams="${(m.teamA+' '+m.teamB).toLowerCase()}">
+    <div class="col-date">
+      <div class="time">${m.time}</div>
+      <div class="group">GROUP ${m.group}</div>
+      <div class="env" title="${ENV_LABEL[m.env]}">${ENV_ICON[m.env]}</div>
+    </div>
+    <div class="col-main">
+      <div class="teams">
+        <span>${m.teamA}</span><span class="vs">vs</span><span>${m.teamB}</span>
+        <span class="pred-score">${m.score}</span>
+        <span class="pred-label">Predicted</span>
+      </div>
+      <div class="meta-row">
+        <span class="pill"><span class="dot ${m.conf}"></span> ${CONF_LABEL[m.conf]} confidence</span>
+        <span class="pill">${ENV_ICON[m.env]} ${ENV_LABEL[m.env]}</span>
+        <span class="pill">O/U line ${m.ouLine}</span>
+      </div>
+      <button class="analysis-toggle" onclick="toggleAnalysis(${idx})">▸ Why this prediction</button>
+      <div class="analysis" id="analysis-${idx}">${m.analysis}</div>
+      <div class="result-row">
+        <label for="score-${idx}">Actual:</label>
+        <input id="score-${idx}" type="text" placeholder="e.g. 2-1" maxlength="5" value="${actual}"
+               class="${resultClass}" onchange="setResult(${idx}, this.value)">
+        ${ouNote}
+      </div>
+    </div>
+    <div class="col-bet">
+      <div class="stamp ${bb.type==='skip'?'skip':''}" style="--stamp-color:${color}">
+        <div class="sb-label">Best Bet</div>
+        <div class="sb-pick">${bb.pick}</div>
+        <div class="sb-conf">${bb.sub}</div>
+      </div>
+    </div>
+  </div>`;
 }
 
-renderFixtures();
+function toggleAnalysis(idx){
+  document.getElementById(`analysis-${idx}`).classList.toggle('open');
+}
+
+function setResult(idx, val){
+  val = val.trim();
+  if(val && !/^\d+-\d+$/.test(val)){
+    alert('Enter a score like 2-1');
+    document.getElementById(`score-${idx}`).value = userResults[idx] || '';
+    return;
+  }
+  if(val) userResults[idx] = val;
+  else delete userResults[idx];
+  saveResults();
+  render();
+}
+
+function render(){
+  const search = document.getElementById('search').value.trim().toLowerCase();
+  const ouFilter = document.getElementById('ouFilter').value;
+  const highOnly = document.getElementById('highOnly').checked;
+  const group = activeGroup();
+
+  const filtered = MATCHES
+    .map((m,idx)=>({m, idx}))
+    .filter(({m})=>{
+      if(group!=='all' && m.group!==group) return false;
+      if(search && !(m.teamA.toLowerCase().includes(search) || m.teamB.toLowerCase().includes(search))) return false;
+      const bb = bestBet(m);
+      if(ouFilter!=='all' && bb.type!==ouFilter) return false;
+      if(highOnly && m.conf!=='high') return false;
+      return true;
+    });
+
+  const list = document.getElementById('matchList');
+  if(filtered.length===0){
+    list.innerHTML = '<div class="empty-state">No matches found — try a different filter or clear your search.</div>';
+    return;
+  }
+
+  let html = '';
+  let lastDate = null;
+  let dayHtml = '';
+  for(const {m, idx} of filtered){
+    if(m.date !== lastDate){
+      if(lastDate !== null) html += `<div class="matches">${dayHtml}</div>`;
+      html += `<div class="day-heading"><h2>${m.date}</h2><div class="rule"></div></div>`;
+      dayHtml = '';
+      lastDate = m.date;
+    }
+    dayHtml += matchCard(m, idx);
+  }
+  html += `<div class="matches">${dayHtml}</div>`;
+  list.innerHTML = html;
+}
+
+document.getElementById('search').addEventListener('input', render);
+document.getElementById('ouFilter').addEventListener('change', render);
+document.getElementById('highOnly').addEventListener('change', function(){
+  document.getElementById('highOnlyWrap').classList.toggle('active', this.checked);
+  render();
+});
+
+(function init(){
+  loadResults();
+  renderStats();
+  renderChips();
+  render();
+})();
 </script>
 </body>
 </html>
