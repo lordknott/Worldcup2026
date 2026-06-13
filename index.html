@@ -318,10 +318,32 @@
     }
     .col-date .env{margin-top:0;}
     .col-date .group{margin-top:0;}
-    .col-bet{border-left:none;border-top:2px dashed var(--line);}
+    .col-bet{
+      border-left:none;border-top:2px dashed var(--line);
+      padding:10px 14px;
+    }
     .pred-score{margin-left:0;}
     .pred-label{margin-left:0;}
     .stats{grid-template-columns:repeat(2,1fr);}
+
+    .stamp{
+      width:auto;height:auto;border-radius:8px;
+      border:1px solid var(--stamp-color);
+      flex-direction:row;justify-content:space-between;
+      transform:none;
+      padding:8px 12px;width:100%;text-align:left;
+      gap:10px;
+    }
+    .stamp .sb-label{font-size:9px;flex-shrink:0;}
+    .stamp .sb-pick{font-size:14px;margin:0;line-height:1.2;}
+    .stamp .sb-conf{font-size:9px;flex-shrink:0;text-align:right;}
+    .stamp.skip .sb-pick{font-size:13px;}
+
+    .col-main{padding:14px;}
+    .teams{font-size:16px;gap:8px;}
+    .pred-score{font-size:19px;}
+    .day-heading{margin:26px auto 12px;}
+    .matches{gap:12px;}
   }
 
   footer{
@@ -410,7 +432,8 @@ function betCandidates(m){
     if(margin>=3) resultStrength = 3;
     else if(margin===2) resultStrength = m.conf==='high' ? 3 : 2;
     else resultStrength = m.conf==='high' ? 2 : 1;
-    resultLabel = `${a>b ? m.teamA : m.teamB} to win`;
+    const winner = a>b ? m.teamA : m.teamB;
+    resultLabel = `${winner} to win`;
   }
 
   // Correct Score — hardest market, only strong when the model is very confident in a clear-margin scoreline
