@@ -211,7 +211,8 @@
   }
   .pred-label{
     font-family:'Space Mono',monospace;font-size:9px;color:var(--muted-2);
-    letter-spacing:.2em;text-transform:uppercase;margin-left:8px;align-self:center;
+    letter-spacing:.15em;text-transform:uppercase;margin-left:8px;align-self:center;
+    line-height:1.5;text-align:left;
   }
   .meta-row{margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
   .pill{
@@ -220,6 +221,27 @@
     text-transform:uppercase;display:inline-flex;align-items:center;gap:5px;
   }
   .pill .dot{width:7px;height:7px;}
+
+  .bet-options{
+    margin-top:10px;display:flex;flex-wrap:wrap;gap:6px;
+  }
+  .bet-option{
+    display:inline-flex;align-items:center;gap:6px;
+    border:1px solid var(--line);border-radius:8px;
+    padding:5px 9px;font-size:11px;color:var(--muted);
+    background:var(--bg-deep);
+  }
+  .bet-option .bo-type{
+    font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.12em;
+    text-transform:uppercase;color:var(--muted-2);
+  }
+  .bet-option .bo-pick{
+    font-family:'Inter',sans-serif;font-weight:500;color:var(--chalk);
+  }
+  .bet-option.picked{
+    border-color:var(--gold);background:rgba(232,178,58,0.08);
+  }
+  .bet-option.picked .bo-type{color:var(--gold);}
 
   .analysis-toggle{
     margin-top:10px;font-family:'Space Mono',monospace;font-size:11px;
@@ -336,9 +358,10 @@
   <div class="controls">
     <input type="text" id="search" placeholder="Search team, e.g. England…">
     <select id="ouFilter">
-      <option value="all">All bet types</option>
-      <option value="over">Best Bet: OVER</option>
-      <option value="under">Best Bet: UNDER</option>
+      <option value="all">All best bet types</option>
+      <option value="ou">Best Bet: Over/Under</option>
+      <option value="result">Best Bet: Match Result</option>
+      <option value="score">Best Bet: Correct Score</option>
       <option value="skip">No Strong Bet</option>
     </select>
     <label class="toggle" id="highOnlyWrap">
@@ -352,7 +375,7 @@
 
 <footer>
   ⚠ <strong>Disclaimer:</strong> Personal predictions for entertainment only. Not guaranteed.<br>
-  "Best Bet" = the over/under pick already carrying the highest confidence rating for that match.<br>
+  "Best Bet" = whichever of Over/Under, Match Result or Correct Score carries the highest confidence for that match.<br>
   If you choose to bet, you do so entirely at your own risk. Please gamble responsibly.<br><br>
   Your entered results are saved in this browser only (not shared or uploaded anywhere).
 </footer>
@@ -365,12 +388,57 @@ const ENV_ICON = {altitude:'🏔', hot:'🔥', ac:'❄', mild:'🌤'};
 const ENV_LABEL = {altitude:'Altitude', hot:'Hot / Humid', ac:'A/C', mild:'Mild'};
 const CONF_LABEL = {high:'High', mod:'Mod', low:'Low'};
 
-function bestBet(m){
-  if(m.ou === 'avoid' || m.conf === 'low'){
-    return {type:'skip', pick:'No Strong Bet', sub:'Sit this one out', conf:m.conf};
+const CONF_VAL = {high:3, mod:2, low:1};
+const TYPE_LABEL = {ou:'Over/Under', result:'Match Result', score:'Correct Score', skip:'No Strong Bet'};
+const TYPE_PRIORITY = {score:3, result:2, ou:1}; // tie-break order when strengths are equal
+
+function betCandidates(m){
+  const [a,b] = m.score.split('-').map(Number);
+  const margin = Math.abs(a-b);
+  const cv = CONF_VAL[m.conf];
+
+  // Over/Under
+  const ouStrength = m.ou === 'avoid' ? 0 : cv;
+  const ouLabel = `${m.ou.toUpperCase()} ${m.ouLine}`;
+
+  // Match Result (which team wins) — confidence driven by predicted winning margin
+  let resultLabel, resultStrength;
+  if(a === b){
+    resultLabel = 'Draw — no clear winner';
+    resultStrength = 0;
+  } else {
+    if(margin>=3) resultStrength = 3;
+    else if(margin===2) resultStrength = m.conf==='high' ? 3 : 2;
+    else resultStrength = m.conf==='high' ? 2 : 1;
+    resultLabel = `${a>b ? m.teamA : m.teamB} to win`;
   }
-  const dir = m.ou === 'over' ? 'OVER' : 'UNDER';
-  return {type:m.ou, pick:`${dir} ${m.ouLine}`, sub:`${CONF_LABEL[m.conf]} confidence`, conf:m.conf};
+
+  // Correct Score — hardest market, only strong when the model is very confident in a clear-margin scoreline
+  let scoreStrength;
+  if(m.conf==='high' && margin>=3) scoreStrength = 3;
+  else if(m.conf==='high' && margin===2) scoreStrength = 2;
+  else if(m.conf==='mod' && margin>=3) scoreStrength = 2;
+  else scoreStrength = 1;
+  const scoreLabel = `Correct score ${m.score}`;
+
+  return [
+    {key:'ou',     label:ouLabel,     strength:ouStrength},
+    {key:'result', label:resultLabel, strength:resultStrength},
+    {key:'score',  label:scoreLabel,  strength:scoreStrength},
+  ];
+}
+
+function bestBet(m){
+  const cands = betCandidates(m);
+  let best = cands[0];
+  for(const c of cands){
+    if(c.strength > best.strength || (c.strength===best.strength && TYPE_PRIORITY[c.key] > TYPE_PRIORITY[best.key])) best = c;
+  }
+  if(best.strength <= 1){
+    return {type:'skip', pick:'No Strong Bet', sub:'Sit this one out', conf:'low', cands};
+  }
+  const confName = best.strength===3 ? 'high' : best.strength===2 ? 'mod' : 'low';
+  return {type:best.key, pick:best.label, sub:`${CONF_LABEL[confName]} confidence`, conf:confName, cands};
 }
 
 function stampColor(bb){
@@ -406,14 +474,27 @@ function classifyResult(predScore, actual){
   return predDir===actDir ? 'direction' : 'miss';
 }
 
-function classifyOU(m, actual){
+function classifyBestBet(m, bb, actual){
   const am = actual.match(/^(\d+)-(\d+)$/);
   if(!am) return null;
-  const total = parseInt(am[1]) + parseInt(am[2]);
-  if(m.ou === 'avoid' || m.conf === 'low') return null;
-  const wentOver = total > m.ouLine;
-  const predicted = m.ou === 'over';
-  return wentOver === predicted ? 'hit' : 'miss';
+  const [aa,ab] = [parseInt(am[1]), parseInt(am[2])];
+  const total = aa + ab;
+
+  if(bb.type === 'ou'){
+    const wentOver = total > m.ouLine;
+    const predicted = m.ou === 'over';
+    return wentOver === predicted ? 'hit' : 'miss';
+  }
+  if(bb.type === 'result'){
+    const [pa,pb] = m.score.split('-').map(Number);
+    const predictedWinner = pa>pb ? 'A' : 'B'; // result bets are never offered on predicted draws
+    const actualOutcome = aa>ab ? 'A' : aa<ab ? 'B' : 'draw';
+    return actualOutcome === predictedWinner ? 'hit' : 'miss';
+  }
+  if(bb.type === 'score'){
+    return actual === m.score ? 'hit' : 'miss';
+  }
+  return null;
 }
 
 // ---------- Rendering ----------
@@ -455,12 +536,22 @@ function matchCard(m, idx){
   const color = stampColor(bb);
   const actual = userResults[idx] || '';
   const resultClass = actual ? (classifyResult(m.score, actual) || '') : '';
-  const ouClass = actual ? (classifyOU(m, actual) || '') : '';
-  let ouNote = '';
+  const bbClass = actual ? (classifyBestBet(m, bb, actual) || '') : '';
+  let bbNote = '';
   if(actual && bb.type !== 'skip'){
-    if(ouClass === 'hit') ouNote = `<span class="ou-result hit">✓ Best Bet hit (${bb.pick})</span>`;
-    else if(ouClass === 'miss') ouNote = `<span class="ou-result miss">✗ Best Bet missed (${bb.pick})</span>`;
+    if(bbClass === 'hit') bbNote = `<span class="ou-result hit">✓ Best Bet hit (${bb.pick})</span>`;
+    else if(bbClass === 'miss') bbNote = `<span class="ou-result miss">✗ Best Bet missed (${bb.pick})</span>`;
   }
+
+  const optionsRow = bb.cands.map(c=>{
+    const confName = c.strength===3 ? 'high' : c.strength===2 ? 'mod' : c.strength===0 ? 'low' : 'low';
+    const isPick = bb.type !== 'skip' && c.key === bb.type;
+    return `<span class="bet-option ${isPick?'picked':''}">
+      <span class="bo-type">${TYPE_LABEL[c.key]}</span>
+      <span class="bo-pick">${c.label}</span>
+      <span class="dot ${confName}"></span>
+    </span>`;
+  }).join('');
 
   return `
   <div class="card" data-idx="${idx}" data-group="${m.group}" data-ou="${bb.type}" data-conf="${m.conf}"
@@ -474,25 +565,26 @@ function matchCard(m, idx){
       <div class="teams">
         <span>${m.teamA}</span><span class="vs">vs</span><span>${m.teamB}</span>
         <span class="pred-score">${m.score}</span>
-        <span class="pred-label">Predicted</span>
+        <span class="pred-label">William's<br>Prediction</span>
       </div>
       <div class="meta-row">
         <span class="pill"><span class="dot ${m.conf}"></span> ${CONF_LABEL[m.conf]} confidence</span>
         <span class="pill">${ENV_ICON[m.env]} ${ENV_LABEL[m.env]}</span>
         <span class="pill">O/U line ${m.ouLine}</span>
       </div>
+      <div class="bet-options">${optionsRow}</div>
       <button class="analysis-toggle" onclick="toggleAnalysis(${idx})">▸ Why this prediction</button>
       <div class="analysis" id="analysis-${idx}">${m.analysis}</div>
       <div class="result-row">
         <label for="score-${idx}">Actual:</label>
         <input id="score-${idx}" type="text" placeholder="e.g. 2-1" maxlength="5" value="${actual}"
                class="${resultClass}" onchange="setResult(${idx}, this.value)">
-        ${ouNote}
+        ${bbNote}
       </div>
     </div>
     <div class="col-bet">
       <div class="stamp ${bb.type==='skip'?'skip':''}" style="--stamp-color:${color}">
-        <div class="sb-label">Best Bet</div>
+        <div class="sb-label">${bb.type==='skip' ? 'Best Bet' : TYPE_LABEL[bb.type]}</div>
         <div class="sb-pick">${bb.pick}</div>
         <div class="sb-conf">${bb.sub}</div>
       </div>
