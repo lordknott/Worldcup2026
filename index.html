@@ -293,8 +293,8 @@
     position:relative;
   }
   .stamp .sb-label{
-    font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.25em;
-    text-transform:uppercase;opacity:.85;
+    font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.12em;
+    text-transform:uppercase;opacity:.85;padding:0 6px;
   }
   .stamp .sb-pick{
     font-family:'Oswald',sans-serif;font-weight:700;font-size:18px;
@@ -607,7 +607,7 @@ function matchCard(m, idx){
     </div>
     <div class="col-bet">
       <div class="stamp ${bb.type==='skip'?'skip':''}" style="--stamp-color:${color}">
-        <div class="sb-label">${bb.type==='skip' ? 'Best Bet' : TYPE_LABEL[bb.type]}</div>
+        <div class="sb-label">William's Best Bet</div>
         <div class="sb-pick">${bb.pick}</div>
         <div class="sb-conf">${bb.sub}</div>
       </div>
