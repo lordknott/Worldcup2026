@@ -160,6 +160,7 @@
   .day-heading{
     max-width:1040px;margin:34px auto 14px;padding:0 20px;
     display:flex;align-items:center;gap:14px;
+    scroll-margin-top:90px;
   }
   .day-heading h2{
     font-family:'Oswald',sans-serif;text-transform:uppercase;
@@ -167,6 +168,12 @@
     color:var(--gold);margin:0;white-space:nowrap;
   }
   .day-heading .rule{flex:1;height:1px;background:var(--line);}
+  .today-tag{
+    font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.15em;
+    background:var(--gold);color:var(--bg-deep);
+    padding:3px 8px;border-radius:5px;margin-left:8px;font-weight:700;
+    vertical-align:middle;
+  }
 
   /* ---------- Match list ---------- */
   .matches{max-width:1040px;margin:0 auto;padding:0 20px;display:flex;flex-direction:column;gap:14px;}
@@ -311,6 +318,7 @@
 
   /* ---------- Mobile ---------- */
   @media (max-width:720px){
+    .day-heading{scroll-margin-top:70px;}
     .card{grid-template-columns:1fr;}
     .col-date{
       flex-direction:row;justify-content:space-between;border-right:none;
@@ -677,7 +685,8 @@ function render(){
   for(const {m, idx} of filtered){
     if(m.date !== lastDate){
       if(lastDate !== null) html += `<div class="matches">${dayHtml}</div>`;
-      html += `<div class="day-heading"><h2>${m.date}</h2><div class="rule"></div></div>`;
+      const todayId = m.date === todayLabel() ? ' id="today-marker"' : '';
+      html += `<div class="day-heading"${todayId} data-date="${m.date}"><h2>${m.date}${m.date===todayLabel()?' <span class="today-tag">TODAY</span>':''}</h2><div class="rule"></div></div>`;
       dayHtml = '';
       lastDate = m.date;
     }
@@ -685,6 +694,11 @@ function render(){
   }
   html += `<div class="matches">${dayHtml}</div>`;
   list.innerHTML = html;
+
+  if(shouldScroll){
+    scrollToToday();
+    shouldScroll = false;
+  }
 }
 
 document.getElementById('search').addEventListener('input', render);
@@ -694,12 +708,50 @@ document.getElementById('highOnly').addEventListener('change', function(){
   render();
 });
 
+// ---------- Scroll to today's matches on load ----------
+let shouldScroll = true;
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+function todayLabel(){
+  const now = new Date();
+  return `${DAYS[now.getDay()]} ${now.getDate()} ${MONTHS[now.getMonth()]}`;
+}
+
+function parseMatchDate(label){
+  // label like "Fri 12 Jun" — assume the tournament year (2026)
+  const parts = label.split(' ');
+  const day = parseInt(parts[1]);
+  const month = MONTHS.indexOf(parts[2]);
+  return new Date(2026, month, day);
+}
+
+function scrollToToday(){
+  const today = document.getElementById('today-marker');
+  if(today){
+    today.scrollIntoView({behavior:'instant', block:'start'});
+    return;
+  }
+  // No exact match for today — find the nearest upcoming date heading
+  const now = new Date();
+  now.setHours(0,0,0,0);
+  const headings = [...document.querySelectorAll('.day-heading')];
+  let target = null;
+  for(const h of headings){
+    const d = parseMatchDate(h.dataset.date);
+    if(d >= now){ target = h; break; }
+  }
+  if(!target && headings.length) target = headings[headings.length-1];
+  if(target) target.scrollIntoView({behavior:'instant', block:'start'});
+}
+
 (function init(){
   loadResults();
   renderStats();
   renderChips();
   render();
 })();
+
 </script>
 </body>
 </html>
